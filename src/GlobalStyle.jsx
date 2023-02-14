@@ -15,6 +15,7 @@ const GlobalStyle = createGlobalStyle`
     --main-background-color: #1E1E1E;
     --main-button-color: #666;
     --play-indicator-color: #A32A47;
+    --main-text-color: #EEE;
   }
   button.eighth-note {
     position: absolute;

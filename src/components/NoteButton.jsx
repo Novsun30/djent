@@ -23,7 +23,7 @@ export default function NoteButton({
     Tone.Transport.cancel(0);
     setPlaying(Tone.Transport.state);
   };
-  const editSequence = (note, bar, number) => (e) => {
+  const editSequence = (inputDegree, bar, number) => (e) => {
     if (playing !== "stopped") {
       stopTransport();
     }
@@ -33,7 +33,7 @@ export default function NoteButton({
 
       setSequence((prevSequence) => {
         const newSeq = prevSequence;
-        newSeq[note] = newSeq[note].filter(
+        newSeq[inputDegree] = newSeq[inputDegree].filter(
           (item) => !(item[0] === bar && item[1] === number && item[2] === noteValue),
         );
         return newSeq;
@@ -42,7 +42,7 @@ export default function NoteButton({
     }
     setSequence((prevSequence) => {
       const newSeq = prevSequence;
-      newSeq[note].push([bar, number, noteValue]);
+      newSeq[inputDegree].push([bar, number, noteValue]);
       return newSeq;
     });
     if (noteValue === "16n") {
@@ -53,17 +53,26 @@ export default function NoteButton({
 
     const targetParent = e.target.parentElement;
     if (noteValue === "8n") {
+      const button8n = document.createElement("button");
       if (bar === totalBars[totalBars.length - 1] && number + 1 > 15) {
         setTotalBars((prevTotalBars) => [...prevTotalBars, prevTotalBars.length + 1]);
       }
-      const button8n = document.createElement("button");
-      button8n.classList.add("eighth-note", `${track}-${note}-${bar}-${number}`);
+      if (number + 1 > 15) {
+        button8n.classList.add(`overbar-${bar}`);
+        button8n.info = {
+          track,
+          inputDegree,
+          bar,
+          number,
+        };
+      }
+      button8n.classList.add("eighth-note", `${track}-${inputDegree}-${bar}-${number}`);
       button8n.addEventListener("click", () => {
         stopTransport();
         button8n.remove();
         setSequence((prevSequence) => {
           const newSeq = prevSequence;
-          newSeq[note] = newSeq[note].filter(
+          newSeq[inputDegree] = newSeq[inputDegree].filter(
             (item) => !(item[0] === bar && item[1] === number && item[2] === noteValue),
           );
           return newSeq;
@@ -78,17 +87,27 @@ export default function NoteButton({
     }
 
     if (noteValue === "4n") {
+      const button4n = document.createElement("button");
       if (bar === totalBars[totalBars.length - 1] && number + 3 > 15) {
         setTotalBars((prevTotalBars) => [...prevTotalBars, prevTotalBars.length + 1]);
       }
-      const button4n = document.createElement("button");
-      button4n.classList.add("quarter-note", `${track}-${note}-${bar}-${number}`);
+      if (number + 3 > 15) {
+        button4n.classList.add(`overbar-${bar}`);
+        button4n.info = {
+          track,
+          inputDegree,
+          bar,
+          number,
+        };
+      }
+
+      button4n.classList.add("quarter-note", `${track}-${inputDegree}-${bar}-${number}`);
       button4n.addEventListener("click", () => {
         stopTransport();
         button4n.remove();
         setSequence((prevSequence) => {
           const newSeq = prevSequence;
-          newSeq[note] = newSeq[note].filter(
+          newSeq[inputDegree] = newSeq[inputDegree].filter(
             (item) => !(item[0] === bar && item[1] === number && item[2] === noteValue),
           );
           return newSeq;
@@ -102,17 +121,26 @@ export default function NoteButton({
     }
 
     if (noteValue === "2n") {
+      const button2n = document.createElement("button");
       if (bar === totalBars[totalBars.length - 1] && number + 7 > 15) {
         setTotalBars((prevTotalBars) => [...prevTotalBars, prevTotalBars.length + 1]);
       }
-      const button2n = document.createElement("button");
-      button2n.classList.add("half-note", `${track}-${note}-${bar}-${number}`);
+      if (number + 7 > 15) {
+        button2n.classList.add(`overbar-${bar}`);
+        button2n.info = {
+          track,
+          inputDegree,
+          bar,
+          number,
+        };
+      }
+      button2n.classList.add("half-note", `${track}-${inputDegree}-${bar}-${number}`);
       button2n.addEventListener("click", () => {
         stopTransport();
         button2n.remove();
         setSequence((prevSequence) => {
           const newSeq = prevSequence;
-          newSeq[note] = newSeq[note].filter(
+          newSeq[inputDegree] = newSeq[inputDegree].filter(
             (item) => !(item[0] === bar && item[1] === number && item[2] === noteValue),
           );
           return newSeq;
@@ -125,17 +153,26 @@ export default function NoteButton({
       removeRepeatNotes("2n");
     }
     if (noteValue === "1n") {
+      const button1n = document.createElement("button");
       if (bar === totalBars[totalBars.length - 1] && number + 15 > 15) {
         setTotalBars((prevTotalBars) => [...prevTotalBars, prevTotalBars.length + 1]);
       }
-      const button1n = document.createElement("button");
-      button1n.classList.add("whole-note", `${track}-${note}-${bar}-${number}`);
+      if (number + 15 > 15) {
+        button1n.classList.add(`overbar-${bar}`);
+        button1n.info = {
+          track,
+          inputDegree,
+          bar,
+          number,
+        };
+      }
+      button1n.classList.add("whole-note", `${track}-${inputDegree}-${bar}-${number}`);
       button1n.addEventListener("click", () => {
         stopTransport();
         button1n.remove();
         setSequence((prevSequence) => {
           const newSeq = prevSequence;
-          newSeq[note] = newSeq[note].filter(
+          newSeq[inputDegree] = newSeq[inputDegree].filter(
             (item) => !(item[0] === bar && item[1] === number && item[2] === noteValue),
           );
           return newSeq;
@@ -151,7 +188,7 @@ export default function NoteButton({
     function removeRepeatNotes(inputNoteValue) {
       setSequence((prevSequence) => {
         const newSeq = prevSequence;
-        newSeq[note] = newSeq[note].filter((item) => {
+        newSeq[inputDegree] = newSeq[inputDegree].filter((item) => {
           const targetArray = overBarConverter(bar, number, inputNoteValue);
           let result = true;
           targetArray.forEach((target) => {
@@ -189,8 +226,8 @@ export default function NoteButton({
             </HrDiv>
             <ButtonDiv className={`button-${bar}-${number}`}>
               <Button
-                className={`${track}-${key(degree)}-${bar}-${number}-16n`}
-                onClick={editSequence(key(degree), bar, number)}
+                className={`${track}-${degree}-${bar}-${number}-16n`}
+                onClick={editSequence(degree, bar, number)}
               />
             </ButtonDiv>
           </React.Fragment>
@@ -199,8 +236,8 @@ export default function NoteButton({
       return (
         <ButtonDiv key={number} className={`button-${bar}-${number}`}>
           <Button
-            className={`${track}-${key(degree)}-${bar}-${number}-16n`}
-            onClick={editSequence(key(degree), bar, number)}
+            className={`${track}-${degree}-${bar}-${number}-16n`}
+            onClick={editSequence(degree, bar, number)}
           />
         </ButtonDiv>
       );

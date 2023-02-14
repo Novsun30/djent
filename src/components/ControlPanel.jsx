@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import * as Tone from "tone";
+import { Scale, transpose, Note } from "tonal";
 import Button from "./Button";
 
 export default function ControlPanel({
-  synthSequence,
   setting,
   setSetting,
   setTotalBars,
-  setSynthSequence,
+  triangleSequence,
+  setTriangleSequence,
+  triangleDegrees,
+  setTriangleDegrees,
   totalBars,
   playing,
   setPlaying,
@@ -38,7 +41,8 @@ export default function ControlPanel({
         });
       }, "+28n");
     }
-  }, [totalBars, playing, synthSequence]);
+  }, [totalBars, playing, triangleSequence, setting.key]);
+
   const playHandler = async () => {
     if (Tone.context.state !== "running") {
       Tone.context.resume();
@@ -58,18 +62,32 @@ export default function ControlPanel({
       return;
     }
     const lastBar = totalBars[totalBars.length - 1];
-    const notes = Object.keys(synthSequence);
-    for (let i = 0; i < notes.length; i += 1) {
+    const key = Scale.degrees(setting.key);
+    const degrees = Object.keys(triangleSequence);
+    degrees.forEach((degree) => {
       const synth = new Tone.Synth().toDestination();
-      synth.volume.value = -5;
-      if (synthSequence[notes[i]].length !== 0) {
-        for (let j = 0; j < synthSequence[notes[i]].length; j += 1) {
-          Tone.Transport.schedule(() => {
-            synth.triggerAttackRelease(notes[i], synthSequence[notes[i]][j][2]);
-          }, `${synthSequence[notes[i]][j][0] - 1}:0:${synthSequence[notes[i]][j][1]}`);
-        }
+      synth.volume.value = -4;
+      if (triangleSequence[degree].length !== 0) {
+        triangleSequence[degree].forEach((item) => {
+          Tone.Transport.schedule((time) => {
+            synth.triggerAttackRelease(Note.simplify(key(degree)), item[2], time);
+          }, `${item[0] - 1}:0:${item[1]}`);
+        });
       }
-    }
+    });
+
+    // const notes = Object.keys(triangleSequence);
+    // for (let i = 0; i < notes.length; i += 1) {
+    //   const synth = new Tone.Synth().toDestination();
+    //   synth.volume.value = -4;
+    //   if (triangleSequence[notes[i]].length !== 0) {
+    //     for (let j = 0; j < triangleSequence[notes[i]].length; j += 1) {
+    //       Tone.Transport.schedule(() => {
+    //         synth.triggerAttackRelease(notes[i], triangleSequence[notes[i]][j][2]);
+    //       }, `${triangleSequence[notes[i]][j][0] - 1}:0:${triangleSequence[notes[i]][j][1]}`);
+    //     }
+    //   }
+    // }
     Tone.Transport.schedule(() => {
       Tone.Transport.stop();
       Tone.Transport.cancel(0);
@@ -96,9 +114,7 @@ export default function ControlPanel({
         }, `${bar - 1}:0:${i}`);
       }
     });
-
     await Tone.start();
-
     Tone.Transport.bpm.value = bpm;
     setSetting((prevSetting) => ({ ...prevSetting, bpm }));
     Tone.Transport.start();
@@ -121,9 +137,9 @@ export default function ControlPanel({
     setTotalBars((prevTotalBars) => {
       const newTotalBars = [...prevTotalBars];
       const removeTargetBar = newTotalBars.pop();
-      setSynthSequence((prevSynthSequence) => {
-        const newSynthSequence = prevSynthSequence;
-        Object.values(newSynthSequence).forEach((noteArrays) => {
+      setTriangleSequence((prevSequence) => {
+        const newSequence = prevSequence;
+        Object.values(prevSequence).forEach((noteArrays) => {
           if (noteArrays.length !== 0) {
             const targetIndex = [];
             for (let i = 0; i < noteArrays.length; i += 1) {
@@ -136,9 +152,23 @@ export default function ControlPanel({
             }
           }
         });
-        return newSynthSequence;
+        return newSequence;
       });
       return newTotalBars;
+    });
+
+    const removeTargetNotes = document.querySelectorAll(`button.overbar-${totalBars.length - 1}`);
+    const trackTable = { triangle: setTriangleSequence };
+    removeTargetNotes.forEach((target) => {
+      const setTargetSequence = trackTable[target.info.track];
+      setTargetSequence((prevSequence) => {
+        const newSequence = prevSequence;
+        newSequence[target.info.inputDegree] = newSequence[target.info.inputDegree].filter(
+          (item) => item[0] === target.info.bar && item[1] === target.info.Number,
+        );
+        return newSequence;
+      });
+      target.remove();
     });
   };
   const bpmChangeHandler = (e) => {
@@ -147,7 +177,7 @@ export default function ControlPanel({
       setBpm(300);
       return;
     }
-    if (e.target.value < 20) {
+    if (e.target.value < 1) {
       setBpm(20);
       return;
     }
@@ -174,7 +204,7 @@ export default function ControlPanel({
     });
   };
   function keyFormat(key) {
-    return `${key.split(" ")[0][0]} ${key.split(" ")[1]}`;
+    return `${key.split(" ")[0].replace(/[34]/, " ")} ${key.split(" ")[1]}`;
   }
 
   function removePausedColor() {
@@ -185,12 +215,67 @@ export default function ControlPanel({
       button.style.background = "var(--main-background-color)";
     });
   }
+  const majorMinorSwitcher = () => {
+    if (setting.key.split(" ")[1] === "major") {
+      setSetting((prevSetting) => {
+        const newSetting = prevSetting;
+        newSetting.key = prevSetting.key.replace("major", "minor");
+        return { ...newSetting };
+      });
+      return;
+    }
+    setSetting((prevSetting) => {
+      const newSetting = prevSetting;
+      newSetting.key = prevSetting.key.replace("minor", "major");
+      return { ...newSetting };
+    });
+  };
 
+  const addKey = () => {
+    stopHandler();
+    setSetting((prevSetting) => {
+      const newSetting = prevSetting;
+      let newKey = Note.simplify(transpose(setting.key.split(" ")[0], "2m"));
+      if (newKey === "G4") {
+        newKey = "G3";
+      }
+      newSetting.key = `${newKey} ${setting.key.split(" ")[1]}`;
+      return { ...newSetting };
+    });
+  };
+  const reduceKey = () => {
+    stopHandler();
+    setSetting((prevSetting) => {
+      const newSetting = prevSetting;
+      let newKey = Note.simplify(transpose(setting.key.split(" ")[0], "-2m"));
+      if (newKey === "F#3") {
+        newKey = "F#4";
+      }
+      newSetting.key = `${newKey} ${setting.key.split(" ")[1]}`;
+      return { ...newSetting };
+    });
+  };
   return (
     <ContainerDiv>
       <KeyDiv>
-        <KeyText>Key</KeyText>
-        <KeyContent>{keyFormat(setting.key)}</KeyContent>
+        <ThemeProvider theme={{ width: "30px" }}>
+          <Button type="button" onClick={reduceKey}>
+            -
+          </Button>
+        </ThemeProvider>
+        <KeyCenterDiv>
+          <KeyText>Key</KeyText>
+          {" "}
+          <KeyContent>{keyFormat(setting.key)}</KeyContent>
+          <StyledMajorMinorButton type="button" onClick={majorMinorSwitcher}>
+            Major / Minor
+          </StyledMajorMinorButton>
+        </KeyCenterDiv>
+        <ThemeProvider theme={{ width: "30px" }}>
+          <Button type="button" onClick={addKey}>
+            +
+          </Button>
+        </ThemeProvider>
       </KeyDiv>
       <BpmDiv>
         <BpmText>BPM</BpmText>
@@ -278,6 +363,15 @@ function NoteValueButton({
 
 const ContainerDiv = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 50px;
+  padding-top: 20px;
+  background: var(--main-background-color);
+  z-index: 10;
+  width: 100%;
+  height: 150px;
 `;
 
 const BpmDiv = styled.div`
@@ -290,7 +384,7 @@ const BpmDiv = styled.div`
 const BpmInput = styled.input`
   border: none;
   background: var(--main-background-color);
-  color: #eee;
+  color: var(--main-text-color);
   font-size: 20px;
   width: 70px;
   padding: 5px;
@@ -301,7 +395,7 @@ const BpmInput = styled.input`
 const BpmControlDiv = styled.div``;
 
 const BpmText = styled.p`
-  color: #eee;
+  color: var(--main-text-color);
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
@@ -309,13 +403,19 @@ const BpmText = styled.p`
 
 const KeyDiv = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
   margin: 10px;
 `;
 
+const KeyCenterDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
+`;
+
 const KeyText = styled.p`
-  color: #eee;
+  color: var(--main-text-color);
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
@@ -324,7 +424,7 @@ const KeyText = styled.p`
 const KeyContent = styled.p`
   border: none;
   background: var(--main-background-color);
-  color: #eee;
+  color: var(--main-text-color);
   font-size: 20px;
   width: 100px;
   padding: 5px;
@@ -346,9 +446,13 @@ const NoteValueDiv = styled.div`
   margin: 0 10px;
 `;
 const NoteValueTitle = styled.p`
-  color: #eee;
+  color: var(--main-text-color);
   font-size: 20px;
   text-align: center;
   font-weight: 600;
   margin-bottom: 10px;
+`;
+
+const StyledMajorMinorButton = styled(Button)`
+  font-size: 16px;
 `;

@@ -1,21 +1,24 @@
 import React from "react";
 import styled from "styled-components";
+import BottomPanel from "./BottomPanel";
 import NoteButton from "./NoteButton";
 import PlayingBar from "./PlayingBar";
 
 export default function Triangle({
   setting,
-  synthSequence,
-  setSynthSequence,
+  triangleSequence,
+  setTriangleSequence,
   totalBars,
   setTotalBars,
   playing,
   setPlaying,
   noteValue,
+  triangleDegrees,
 }) {
-  const degrees = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"];
-  const bar = degrees.map((degree) => {
-    if (degree === "7") {
+  let i = 1;
+  const bar = triangleDegrees.map((degree) => {
+    if (i === 7) {
+      i += 1;
       return (
         <React.Fragment key={`${setting.track}-1-${degree}`}>
           <NoteButton
@@ -23,8 +26,8 @@ export default function Triangle({
             currentKey={setting.key}
             totalBars={totalBars}
             setTotalBars={setTotalBars}
-            setSequence={setSynthSequence}
-            sequence={synthSequence}
+            setSequence={setTriangleSequence}
+            sequence={triangleSequence}
             playing={playing}
             setPlaying={setPlaying}
             noteValue={noteValue}
@@ -34,6 +37,7 @@ export default function Triangle({
         </React.Fragment>
       );
     }
+    i += 1;
     return (
       <NoteButton
         key={`${setting.track}-1-${degree}`}
@@ -41,8 +45,8 @@ export default function Triangle({
         currentKey={setting.key}
         totalBars={totalBars}
         setTotalBars={setTotalBars}
-        setSequence={setSynthSequence}
-        sequence={synthSequence}
+        setSequence={setTriangleSequence}
+        sequence={triangleSequence}
         playing={playing}
         setPlaying={setPlaying}
         noteValue={noteValue}
@@ -50,8 +54,14 @@ export default function Triangle({
       />
     );
   });
-  return <BarsDiv className="synth">{bar}</BarsDiv>;
+  return (
+    <>
+      <BarsDiv className="synth">{bar}</BarsDiv>
+      <BottomPanel setting={setting} degrees={triangleDegrees} />
+    </>
+  );
 }
 const BarsDiv = styled.div`
   display: flex;
+  margin-bottom: 150px;
 `;
