@@ -1,6 +1,6 @@
 import React from "react";
-import HomePage from "./Pages/HomePage";
+import ComposePage from "./Pages/ComposePage";
 
 export default function App() {
-  return <HomePage />;
+  return <ComposePage />;
 }
