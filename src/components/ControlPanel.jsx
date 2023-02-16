@@ -69,25 +69,14 @@ export default function ControlPanel({
       synth.volume.value = -4;
       if (triangleSequence[degree].length !== 0) {
         triangleSequence[degree].forEach((item) => {
-          Tone.Transport.schedule((time) => {
-            synth.triggerAttackRelease(Note.simplify(key(degree)), item[2], time);
-          }, `${item[0] - 1}:0:${item[1]}`);
+          Tone.Transport.schedule(() => {
+            const now = Tone.now();
+            synth.triggerAttackRelease(Note.simplify(key(degree)), item.noteValue, now);
+          }, `${item.bar - 1}:0:${item.number}`);
         });
       }
     });
 
-    // const notes = Object.keys(triangleSequence);
-    // for (let i = 0; i < notes.length; i += 1) {
-    //   const synth = new Tone.Synth().toDestination();
-    //   synth.volume.value = -4;
-    //   if (triangleSequence[notes[i]].length !== 0) {
-    //     for (let j = 0; j < triangleSequence[notes[i]].length; j += 1) {
-    //       Tone.Transport.schedule(() => {
-    //         synth.triggerAttackRelease(notes[i], triangleSequence[notes[i]][j][2]);
-    //       }, `${triangleSequence[notes[i]][j][0] - 1}:0:${triangleSequence[notes[i]][j][1]}`);
-    //     }
-    //   }
-    // }
     Tone.Transport.schedule(() => {
       Tone.Transport.stop();
       Tone.Transport.cancel(0);
@@ -134,43 +123,24 @@ export default function ControlPanel({
 
   const reduceBar = () => {
     stopHandler();
-    setTotalBars((prevTotalBars) => {
-      const newTotalBars = [...prevTotalBars];
-      const removeTargetBar = newTotalBars.pop();
-      setTriangleSequence((prevSequence) => {
-        const newSequence = prevSequence;
-        Object.values(prevSequence).forEach((noteArrays) => {
-          if (noteArrays.length !== 0) {
-            const targetIndex = [];
-            for (let i = 0; i < noteArrays.length; i += 1) {
-              if (noteArrays[i][0] === removeTargetBar) {
-                targetIndex.push(i);
-              }
-            }
-            for (let i = 0; i < targetIndex.length; i += 1) {
-              noteArrays.splice(targetIndex[i], 1);
-            }
-          }
-        });
-        return newSequence;
-      });
-      return newTotalBars;
-    });
-
-    const removeTargetNotes = document.querySelectorAll(`button.overbar-${totalBars.length - 1}`);
-    const trackTable = { triangle: setTriangleSequence };
-    removeTargetNotes.forEach((target) => {
-      const setTargetSequence = trackTable[target.info.track];
-      setTargetSequence((prevSequence) => {
-        const newSequence = prevSequence;
-        newSequence[target.info.inputDegree] = newSequence[target.info.inputDegree].filter(
-          (item) => item[0] === target.info.bar && item[1] === target.info.Number,
+    setTriangleSequence((prevSequence) => {
+      const targetBar = totalBars[totalBars.length - 1];
+      let result = { ...prevSequence };
+      triangleDegrees.forEach((element) => {
+        const newNotes = prevSequence[element].filter(
+          (el) => !(el.bar === targetBar || (el.bar === targetBar - 1 && el.overBar === true)),
         );
-        return newSequence;
+        result = { ...result, [element]: newNotes };
       });
-      target.remove();
+
+      return result;
+    });
+    setTotalBars((prevTotalBars) => {
+      prevTotalBars.pop();
+      return [...prevTotalBars];
     });
   };
+
   const bpmChangeHandler = (e) => {
     stopHandler();
     if (e.target.value > 300) {
@@ -258,11 +228,9 @@ export default function ControlPanel({
   return (
     <ContainerDiv>
       <KeyDiv>
-        <ThemeProvider theme={{ width: "30px" }}>
-          <Button type="button" onClick={reduceKey}>
-            -
-          </Button>
-        </ThemeProvider>
+        <PlusMinusButton type="button" onClick={reduceKey}>
+          -
+        </PlusMinusButton>
         <KeyCenterDiv>
           <KeyText>Key</KeyText>
           {" "}
@@ -271,24 +239,21 @@ export default function ControlPanel({
             Major / Minor
           </StyledMajorMinorButton>
         </KeyCenterDiv>
-        <ThemeProvider theme={{ width: "30px" }}>
-          <Button type="button" onClick={addKey}>
-            +
-          </Button>
-        </ThemeProvider>
+
+        <PlusMinusButton type="button" onClick={addKey}>
+          +
+        </PlusMinusButton>
       </KeyDiv>
       <BpmDiv>
         <BpmText>BPM</BpmText>
         <BpmControlDiv>
-          <ThemeProvider theme={{ width: "30px" }}>
-            <Button type="button" onClick={reduceBpm}>
-              -
-            </Button>
-            <BpmInput value={bpm} onChange={bpmChangeHandler} />
-            <Button type="button" onClick={addBpm}>
-              +
-            </Button>
-          </ThemeProvider>
+          <PlusMinusButton type="button" onClick={reduceBpm}>
+            -
+          </PlusMinusButton>
+          <BpmInput value={bpm} onChange={bpmChangeHandler} />
+          <PlusMinusButton type="button" onClick={addBpm}>
+            +
+          </PlusMinusButton>
         </BpmControlDiv>
       </BpmDiv>
       <ThemeProvider theme={{ width: "70px", height: "80px" }}>
@@ -302,7 +267,7 @@ export default function ControlPanel({
 
       <NoteValueDiv>
         <NoteValueTitle>Note Value</NoteValueTitle>
-        <NoteValueButton
+        <NoteValueButtons
           noteValue={noteValue}
           setNoteValue={setNoteValue}
           playing={playing}
@@ -319,48 +284,38 @@ export default function ControlPanel({
   );
 }
 
-function NoteValueButton({
+function NoteValueButtons({
   noteValue, setNoteValue, playing, setPlaying,
 }) {
-  useEffect(() => {
-    const defaultButton = document.querySelector(`button.note-value-${noteValue}`);
-    defaultButton.style.background = "#AAA";
-  }, []);
-
-  const noteValueSelector = (e) => {
+  const noteValueSelector = (inputValue) => () => {
     if (playing === "started") {
       return;
     }
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
     setPlaying(Tone.Transport.state);
-    const prevButton = document.querySelector(`button.note-value-${noteValue}`);
-    prevButton.style.background = "var(--main-button-color)";
-    e.target.style.background = "#AAA";
-
-    setNoteValue(`${e.target.textContent.replace("1/", "")}n`);
+    setNoteValue(inputValue);
   };
   const noteValueArray = ["1n", "2n", "4n", "8n", "16n"];
-  const noteValueButtons = noteValueArray.map((currentNoteValue) => (
-    <Button
-      key={`note-value-${currentNoteValue}`}
-      onClick={noteValueSelector}
-      className={`note-value-${currentNoteValue}`}
-    >
-      {`${currentNoteValue.replace("n", "")}` === "1"
+  const noteValueButtons = noteValueArray.map((inputNoteValue) => (noteValue === inputNoteValue ? (
+    <SelectedNoteValue key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+      {`${inputNoteValue.replace("n", "")}` === "1"
         ? "1"
-        : `1/${currentNoteValue.replace("n", "")}`}
-    </Button>
-  ));
-  return (
-    <NoteValueButtonDiv>
-      <ThemeProvider theme={{ width: "55px", height: "45px", margin: "2px" }}>
-        {noteValueButtons}
-      </ThemeProvider>
-    </NoteValueButtonDiv>
-  );
+        : `1/${inputNoteValue.replace("n", "")}`}
+    </SelectedNoteValue>
+  ) : (
+    <NoteValueButton key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+      {`${inputNoteValue.replace("n", "")}` === "1"
+        ? "1"
+        : `1/${inputNoteValue.replace("n", "")}`}
+    </NoteValueButton>
+  )));
+  return <NoteValueButtonDiv>{noteValueButtons}</NoteValueButtonDiv>;
 }
 
+const PlusMinusButton = styled(Button)`
+  width: 30px;
+`;
 const ContainerDiv = styled.div`
   display: flex;
   justify-content: center;
@@ -434,6 +389,15 @@ const KeyContent = styled.p`
 const BarDiv = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const NoteValueButton = styled(Button)`
+  width: 55px;
+  height: 45px;
+  margin: 2px;
+`;
+const SelectedNoteValue = styled(NoteValueButton)`
+  background: #aaa;
 `;
 
 const NoteValueButtonDiv = styled.div`

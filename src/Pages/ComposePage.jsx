@@ -12,9 +12,7 @@ export default function ComposePage() {
     bpm: "120",
   });
   const [triangleDegrees, setTriangleDegrees] = useState(degrees);
-  const [triangleSequence, setTriangleSequence] = useState(
-    createSequence(setting.key, triangleDegrees),
-  );
+  const [triangleSequence, setTriangleSequence] = useState(createSequence(triangleDegrees));
   const [totalBars, setTotalBars] = useState([1]);
   const [playing, setPlaying] = useState(Tone.Transport.state);
   const [noteValue, setNoteValue] = useState("16n");
@@ -53,18 +51,11 @@ export default function ComposePage() {
   );
 }
 
-function createSequence(currentKey, inputDegrees) {
+function createSequence(inputDegrees) {
   let result = {};
   inputDegrees.forEach((degree) => {
-    const newObj = { [degree]: [] };
-    result = Object.assign(result, newObj);
+    result = { ...result, [degree]: [] };
   });
-  // const key = Scale.degrees(currentKey);
-  // for (let i = 0; i < inputDegrees.length; i += 1) {
-  //   const note = key(inputDegrees[i]);
-  //   const newObj = { [note]: [] };
-  //   result = Object.assign(result, newObj);
-  // }
   return result;
 }
 
