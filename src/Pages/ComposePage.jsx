@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import ControlPanel from "../components/ControlPanel";
-import Triangle from "../components/Triangle";
+import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
 
 export default function ComposePage() {
@@ -10,12 +10,34 @@ export default function ComposePage() {
   const [setting, setSetting] = useState({
     key: "C4 major",
     bpm: "120",
+    melody: {
+      triangle: true,
+      triangleBass: false,
+    },
+    rhythm: false,
   });
   const [triangleDegrees, setTriangleDegrees] = useState(degrees);
   const [triangleSequence, setTriangleSequence] = useState(createSequence(triangleDegrees));
   const [totalBars, setTotalBars] = useState([1]);
   const [playing, setPlaying] = useState(Tone.Transport.state);
   const [noteValue, setNoteValue] = useState("16n");
+  const playBarRef = useRef(null);
+  const melodyTracks = Object.keys(setting.melody).map((track) => (setting.melody[track] ? (
+    <Melody
+      key={track}
+      setting={setting}
+      sequence={triangleSequence}
+      setSequence={setTriangleSequence}
+      totalBars={totalBars}
+      setTotalBars={setTotalBars}
+      playing={playing}
+      setPlaying={setPlaying}
+      noteValue={noteValue}
+      setNoteValue={setNoteValue}
+      degrees={triangleDegrees}
+      playBarRef={playBarRef}
+    />
+  ) : null));
   return (
     <>
       <NavBar />
@@ -33,19 +55,35 @@ export default function ComposePage() {
           setNoteValue={setNoteValue}
           triangleDegrees={triangleDegrees}
           setTriangleDegrees={setTriangleDegrees}
+          playBarRef={playBarRef}
         />
-        <Triangle
+        {/* <Melody
           setting={setting}
-          triangleSequence={triangleSequence}
-          setTriangleSequence={setTriangleSequence}
+          sequence={triangleSequence}
+          setSequence={setTriangleSequence}
           totalBars={totalBars}
           setTotalBars={setTotalBars}
           playing={playing}
           setPlaying={setPlaying}
           noteValue={noteValue}
           setNoteValue={setNoteValue}
-          triangleDegrees={triangleDegrees}
+          degrees={triangleDegrees}
+          playBarRef={playBarRef}
         />
+        <Melody
+          setting={setting}
+          sequence={triangleSequence}
+          setSequence={setTriangleSequence}
+          totalBars={totalBars}
+          setTotalBars={setTotalBars}
+          playing={playing}
+          setPlaying={setPlaying}
+          noteValue={noteValue}
+          setNoteValue={setNoteValue}
+          degrees={triangleDegrees}
+          playBarRef={playBarRef}
+        /> */}
+        {melodyTracks}
       </Main>
     </>
   );

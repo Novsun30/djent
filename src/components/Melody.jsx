@@ -2,21 +2,22 @@ import React from "react";
 import styled from "styled-components";
 import BottomPanel from "./BottomPanel";
 import NoteButton from "./NoteButton";
-import PlayingBar from "./PlayingBar";
+import PlayBar from "./PlayBar";
 
-export default function Triangle({
+export default function Melody({
   setting,
-  triangleSequence,
-  setTriangleSequence,
+  sequence,
+  setSequence,
   totalBars,
   setTotalBars,
   playing,
   setPlaying,
   noteValue,
-  triangleDegrees,
+  degrees,
+  playBarRef,
 }) {
   let i = 1;
-  const bar = triangleDegrees.map((degree) => {
+  const bar = degrees.map((degree) => {
     if (i === 7) {
       i += 1;
       return (
@@ -26,14 +27,14 @@ export default function Triangle({
             currentKey={setting.key}
             totalBars={totalBars}
             setTotalBars={setTotalBars}
-            setSequence={setTriangleSequence}
-            sequence={triangleSequence}
+            setSequence={setSequence}
+            sequence={sequence}
             playing={playing}
             setPlaying={setPlaying}
             noteValue={noteValue}
             track="triangle"
           />
-          <PlayingBar totalBars={totalBars} />
+          <PlayBar totalBars={totalBars} playBarRef={playBarRef} />
         </React.Fragment>
       );
     }
@@ -45,8 +46,8 @@ export default function Triangle({
         currentKey={setting.key}
         totalBars={totalBars}
         setTotalBars={setTotalBars}
-        setSequence={setTriangleSequence}
-        sequence={triangleSequence}
+        setSequence={setSequence}
+        sequence={sequence}
         playing={playing}
         setPlaying={setPlaying}
         noteValue={noteValue}
@@ -57,11 +58,11 @@ export default function Triangle({
   return (
     <>
       <BarsDiv className="synth">{bar}</BarsDiv>
-      <BottomPanel setting={setting} degrees={triangleDegrees} />
+      <BottomPanel setting={setting} degrees={degrees} />
     </>
   );
 }
-const BarsDiv = styled.div`
+const BarsDiv = styled.section`
   display: flex;
   margin-bottom: 150px;
 `;
