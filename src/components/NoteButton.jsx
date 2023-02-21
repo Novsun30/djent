@@ -1,13 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { Scale } from "tonal";
 import * as Tone from "tone";
 import overBarConverter from "../utils/overBarConverter";
 import SelectedNote from "./SelectedNote";
 
 export default function NoteButton({
   track,
-  currentKey,
   degree,
   totalBars,
   setTotalBars,
@@ -16,8 +14,8 @@ export default function NoteButton({
   playing,
   setPlaying,
   noteValue,
+  sharpFlat,
 }) {
-  const key = Scale.degrees(currentKey);
   const buttonNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
   const stopTransport = () => {
@@ -25,24 +23,63 @@ export default function NoteButton({
     Tone.Transport.cancel(0);
     setPlaying(Tone.Transport.state);
   };
-  const addSequence = (inputDegree, bar, number) => () => {
+  const addSequence = (inputTrack, inputDegree, bar, number) => () => {
     if (playing !== "stopped") {
       stopTransport();
     }
-    if (noteValue === "16n") {
-      setSequence({
-        ...sequence,
+    const normalNote = {
+      ...sequence,
+      [inputTrack]: {
+        ...sequence[inputTrack],
         [inputDegree]: [
-          ...sequence[inputDegree],
+          ...sequence[inputTrack][inputDegree],
           {
             bar,
             number,
             noteValue,
             display: "normal",
             overBar: false,
+            sharpFlat,
           },
         ],
-      });
+      },
+    };
+    const longerNote = {
+      ...sequence,
+      [inputTrack]: {
+        ...sequence[inputTrack],
+        [inputDegree]: [
+          ...sequence[inputTrack][inputDegree],
+          {
+            bar,
+            number,
+            noteValue,
+            display: "longer",
+            overBar: false,
+            sharpFlat,
+          },
+        ],
+      },
+    };
+    const longerOverBarNote = {
+      ...sequence,
+      [inputTrack]: {
+        ...sequence[inputTrack],
+        [inputDegree]: [
+          ...sequence[inputTrack][inputDegree],
+          {
+            bar,
+            number,
+            noteValue,
+            display: "longer",
+            overBar: true,
+            sharpFlat,
+          },
+        ],
+      },
+    };
+    if (noteValue === "16n") {
+      setSequence(normalNote);
     }
     if (noteValue === "8n") {
       if (bar === totalBars[totalBars.length - 1] && number + 1 > 15) {
@@ -50,50 +87,29 @@ export default function NoteButton({
       }
       setSequence(() => {
         if (number + 1 > 15) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: true,
-              },
-            ],
-          };
+          return longerOverBarNote;
         }
         if ((number + 1) % 4 === 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: false,
-              },
-            ],
-          };
+          return longerNote;
         }
-        return {
-          ...sequence,
-          [inputDegree]: [
-            ...sequence[inputDegree],
-            {
-              bar,
-              number,
-              noteValue,
-              display: "normal",
-              overBar: false,
-            },
-          ],
-        };
+        return normalNote;
       });
       removeRepeatNotes("8n");
+    }
+    if (noteValue === "8n.") {
+      if (bar === totalBars[totalBars.length - 1] && number + 2 > 15) {
+        setTotalBars([...totalBars, totalBars.length + 1]);
+      }
+      setSequence(() => {
+        if (number + 2 > 15) {
+          return longerOverBarNote;
+        }
+        if ((number + 1) % 4 === 0 || (number + 2) % 4 === 0) {
+          return longerNote;
+        }
+        return normalNote;
+      });
+      removeRepeatNotes("8n.");
     }
     if (noteValue === "4n") {
       if (bar === totalBars[totalBars.length - 1] && number + 3 > 15) {
@@ -101,102 +117,59 @@ export default function NoteButton({
       }
       setSequence(() => {
         if (number + 3 > 15) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: true,
-              },
-            ],
-          };
+          return longerOverBarNote;
         }
         if (number % 4 !== 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: false,
-              },
-            ],
-          };
+          return longerNote;
         }
-        return {
-          ...sequence,
-          [inputDegree]: [
-            ...sequence[inputDegree],
-            {
-              bar,
-              number,
-              noteValue,
-              display: "normal",
-              overBar: false,
-            },
-          ],
-        };
+        return normalNote;
       });
       removeRepeatNotes("4n");
     }
-
+    if (noteValue === "4n.") {
+      if (bar === totalBars[totalBars.length - 1] && number + 5 > 15) {
+        setTotalBars([...totalBars, totalBars.length + 1]);
+      }
+      setSequence(() => {
+        if (number + 5 > 15) {
+          return longerOverBarNote;
+        }
+        if (number % 4 === 3) {
+          return longerNote;
+        }
+        return normalNote;
+      });
+      removeRepeatNotes("4n.");
+    }
     if (noteValue === "2n") {
       if (bar === totalBars[totalBars.length - 1] && number + 7 > 15) {
         setTotalBars([...totalBars, totalBars.length + 1]);
       }
       setSequence(() => {
         if (number + 7 > 15 && number % 4 !== 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: true,
-              },
-            ],
-          };
+          return longerOverBarNote;
         }
         if (number % 4 !== 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: false,
-              },
-            ],
-          };
+          return longerNote;
         }
-        return {
-          ...sequence,
-          [inputDegree]: [
-            ...sequence[inputDegree],
-            {
-              bar,
-              number,
-              noteValue,
-              display: "normal",
-              overBar: false,
-            },
-          ],
-        };
+        return normalNote;
       });
       removeRepeatNotes("2n");
+    }
+    if (noteValue === "2n.") {
+      if (bar === totalBars[totalBars.length - 1] && number + 11 > 15) {
+        setTotalBars([...totalBars, totalBars.length + 1]);
+      }
+      setSequence(() => {
+        if (number + 11 > 15 && number % 4 !== 0) {
+          return longerOverBarNote;
+        }
+        if (number % 4 !== 0) {
+          return longerNote;
+        }
+        return normalNote;
+      });
+      removeRepeatNotes("2n.");
     }
 
     if (noteValue === "1n") {
@@ -205,55 +178,19 @@ export default function NoteButton({
       }
       setSequence(() => {
         if (number + 15 > 15 && number % 4 !== 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: true,
-              },
-            ],
-          };
+          return longerOverBarNote;
         }
         if (number % 4 !== 0) {
-          return {
-            ...sequence,
-            [inputDegree]: [
-              ...sequence[inputDegree],
-              {
-                bar,
-                number,
-                noteValue,
-                display: "longer",
-                overBar: false,
-              },
-            ],
-          };
+          return longerNote;
         }
-        return {
-          ...sequence,
-          [inputDegree]: [
-            ...sequence[inputDegree],
-            {
-              bar,
-              number,
-              noteValue,
-              display: "normal",
-              overBar: false,
-            },
-          ],
-        };
+        return normalNote;
       });
       removeRepeatNotes("1n");
     }
     function removeRepeatNotes(inputNoteValue) {
       setSequence((prevSequence) => {
         const targetArray = overBarConverter(bar, number, inputNoteValue);
-        const result = prevSequence[inputDegree].filter((item) => {
+        const result = prevSequence[track][inputDegree].filter((item) => {
           let isKeep = true;
           targetArray.forEach((target) => {
             if (item.bar === target[0] && item.number === target[1]) {
@@ -264,18 +201,21 @@ export default function NoteButton({
         });
         return {
           ...prevSequence,
-          [inputDegree]: result,
+          [track]: { ...prevSequence[track], [inputDegree]: result },
         };
       });
     }
   };
 
-  const removeSequence = (inputDegree, bar, number) => () => {
+  const removeSequence = (inputTrack, inputDegree, bar, number) => () => {
     setSequence({
       ...sequence,
-      [inputDegree]: sequence[inputDegree].filter(
-        (item) => !(item.bar === bar && item.number === number),
-      ),
+      [inputTrack]: {
+        ...sequence[inputTrack],
+        [inputDegree]: sequence[inputTrack][inputDegree].filter(
+          (item) => !(item.bar === bar && item.number === number),
+        ),
+      },
     });
   };
 
@@ -290,16 +230,17 @@ export default function NoteButton({
             <ButtonDiv className={`button-${bar}-${number}`}>
               <Button
                 className={`${track}-${degree}-${bar}-${number}-16n`}
-                onClick={addSequence(degree, bar, number)}
+                onClick={addSequence(track, degree, bar, number)}
               />
               <SelectedNote
                 sequence={sequence}
                 info={{
+                  track,
                   degree,
                   bar,
                   number,
                 }}
-                onClick={removeSequence(degree, bar, number)}
+                onClick={removeSequence(track, degree, bar, number)}
               />
             </ButtonDiv>
           </React.Fragment>
@@ -309,16 +250,17 @@ export default function NoteButton({
         <ButtonDiv key={number} className={`button-${bar}-${number}`}>
           <Button
             className={`${track}-${degree}-${bar}-${number}-16n`}
-            onClick={addSequence(degree, bar, number)}
+            onClick={addSequence(track, degree, bar, number)}
           />
           <SelectedNote
             sequence={sequence}
             info={{
+              track,
               degree,
               bar,
               number,
             }}
-            onClick={removeSequence(degree, bar, number)}
+            onClick={removeSequence(track, degree, bar, number)}
           />
         </ButtonDiv>
       );

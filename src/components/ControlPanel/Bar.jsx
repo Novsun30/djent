@@ -3,11 +3,7 @@ import styled from "styled-components";
 import Button from "../Button";
 
 export default function Bar({
-  triangleDegrees,
-  totalBars,
-  setTotalBars,
-  setTriangleSequence,
-  stopHandler,
+  degrees, totalBars, setTotalBars, setSequence, stopHandler,
 }) {
   const addBar = () => {
     stopHandler();
@@ -19,16 +15,18 @@ export default function Bar({
     if (totalBars.length === 1) {
       return;
     }
-    setTriangleSequence((prevSequence) => {
+    setSequence((prevSequence) => {
       const targetBar = totalBars[totalBars.length - 1];
       let result = { ...prevSequence };
-      triangleDegrees.forEach((element) => {
-        const newNotes = prevSequence[element].filter(
-          (el) => !(el.bar === targetBar || (el.bar === targetBar - 1 && el.overBar === true)),
-        );
-        result = { ...result, [element]: newNotes };
+      const allTracks = Object.keys(prevSequence);
+      allTracks.forEach((track) => {
+        degrees.forEach((element) => {
+          const newNotes = prevSequence[track][element].filter(
+            (el) => !(el.bar === targetBar || (el.bar === targetBar - 1 && el.overBar === true)),
+          );
+          result = { ...result, [track]: { ...result[track], [element]: newNotes } };
+        });
       });
-
       return result;
     });
     setTotalBars((prevTotalBars) => {

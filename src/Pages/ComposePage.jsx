@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import ControlPanel from "../components/ControlPanel";
@@ -6,7 +6,7 @@ import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
 
 export default function ComposePage() {
-  const degrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const defaultDegrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const [setting, setSetting] = useState({
     key: "C4 major",
     bpm: "120",
@@ -16,15 +16,17 @@ export default function ComposePage() {
     },
     rhythm: false,
   });
-  const [triangleDegrees, setTriangleDegrees] = useState(degrees);
-  const [triangleSequence, setTriangleSequence] = useState(createSequence(triangleDegrees));
+  const [degrees, setDegrees] = useState(defaultDegrees);
+  const [triangleSequence, setTriangleSequence] = useState(createSequence(degrees));
   const [totalBars, setTotalBars] = useState([1]);
   const [playing, setPlaying] = useState(Tone.Transport.state);
   const [noteValue, setNoteValue] = useState("16n");
+  const [sharpFlat, setSharpFlat] = useState(false);
   const playBarRef = useRef(null);
   const melodyTracks = Object.keys(setting.melody).map((track) => (setting.melody[track] ? (
     <Melody
       key={track}
+      track={track}
       setting={setting}
       sequence={triangleSequence}
       setSequence={setTriangleSequence}
@@ -34,17 +36,33 @@ export default function ComposePage() {
       setPlaying={setPlaying}
       noteValue={noteValue}
       setNoteValue={setNoteValue}
-      degrees={triangleDegrees}
+      degrees={degrees}
       playBarRef={playBarRef}
+      sharpFlat={sharpFlat}
     />
   ) : null));
+  const trackSelector = Object.keys(setting.melody).map((track) => (setting.melody[track] ? (
+    <div key={track}>
+      <div>{track}</div>
+    </div>
+  ) : null));
+  function createSequence(inputDegrees) {
+    let result = {};
+    Object.keys(setting.melody).forEach((track) => {
+      inputDegrees.forEach((degree) => {
+        result = { ...result, [track]: { ...result[track], [degree]: [] } };
+      });
+    });
+    return result;
+  }
+
   return (
     <>
       <NavBar />
       <Main>
         <ControlPanel
-          triangleSequence={triangleSequence}
-          setTriangleSequence={setTriangleSequence}
+          sequence={triangleSequence}
+          setSequence={setTriangleSequence}
           setting={setting}
           setSetting={setSetting}
           totalBars={totalBars}
@@ -53,48 +71,19 @@ export default function ComposePage() {
           setPlaying={setPlaying}
           noteValue={noteValue}
           setNoteValue={setNoteValue}
-          triangleDegrees={triangleDegrees}
-          setTriangleDegrees={setTriangleDegrees}
+          degrees={degrees}
           playBarRef={playBarRef}
+          sharpFlat={sharpFlat}
+          setSharpFlat={setSharpFlat}
         />
-        {/* <Melody
-          setting={setting}
-          sequence={triangleSequence}
-          setSequence={setTriangleSequence}
-          totalBars={totalBars}
-          setTotalBars={setTotalBars}
-          playing={playing}
-          setPlaying={setPlaying}
-          noteValue={noteValue}
-          setNoteValue={setNoteValue}
-          degrees={triangleDegrees}
-          playBarRef={playBarRef}
-        />
-        <Melody
-          setting={setting}
-          sequence={triangleSequence}
-          setSequence={setTriangleSequence}
-          totalBars={totalBars}
-          setTotalBars={setTotalBars}
-          playing={playing}
-          setPlaying={setPlaying}
-          noteValue={noteValue}
-          setNoteValue={setNoteValue}
-          degrees={triangleDegrees}
-          playBarRef={playBarRef}
-        /> */}
         {melodyTracks}
+        <div>
+          {trackSelector}
+          {setting.rhythm ? <div>rhythm</div> : null}
+        </div>
       </Main>
     </>
   );
-}
-
-function createSequence(inputDegrees) {
-  let result = {};
-  inputDegrees.forEach((degree) => {
-    result = { ...result, [degree]: [] };
-  });
-  return result;
 }
 
 const Main = styled.main`

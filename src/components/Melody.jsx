@@ -15,6 +15,8 @@ export default function Melody({
   noteValue,
   degrees,
   playBarRef,
+  track,
+  sharpFlat,
 }) {
   let i = 1;
   const bar = degrees.map((degree) => {
@@ -24,7 +26,6 @@ export default function Melody({
         <React.Fragment key={`${setting.track}-1-${degree}`}>
           <NoteButton
             degree={degree}
-            currentKey={setting.key}
             totalBars={totalBars}
             setTotalBars={setTotalBars}
             setSequence={setSequence}
@@ -32,7 +33,8 @@ export default function Melody({
             playing={playing}
             setPlaying={setPlaying}
             noteValue={noteValue}
-            track="triangle"
+            track={track}
+            sharpFlat={sharpFlat}
           />
           <PlayBar totalBars={totalBars} playBarRef={playBarRef} />
         </React.Fragment>
@@ -43,7 +45,6 @@ export default function Melody({
       <NoteButton
         key={`${setting.track}-1-${degree}`}
         degree={degree}
-        currentKey={setting.key}
         totalBars={totalBars}
         setTotalBars={setTotalBars}
         setSequence={setSequence}
@@ -51,7 +52,8 @@ export default function Melody({
         playing={playing}
         setPlaying={setPlaying}
         noteValue={noteValue}
-        track="triangle"
+        track={track}
+        sharpFlat={sharpFlat}
       />
     );
   });

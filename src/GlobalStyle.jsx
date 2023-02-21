@@ -12,6 +12,8 @@ const GlobalStyle = createGlobalStyle`
   :root {
     --note-color: #fff6ee;
     --note-selected-color: #F91;
+    --note-sharp-color: #9F1;
+    --note-flat-color: #F19;
     --main-background-color: #1E1E1E;
     --main-button-color: #666;
     --play-indicator-color: #A32A47;

@@ -2,37 +2,37 @@ import React from "react";
 import styled from "styled-components";
 import Button from "../Button";
 
-export default function BPM({ bpm, setBpm, stopHandler }) {
+export default function BPM({ setting, setSetting, stopHandler }) {
   const bpmChangeHandler = (e) => {
     stopHandler();
     if (e.target.value > 300) {
-      setBpm(300);
+      setSetting({ ...setting, bpm: 300 });
       return;
     }
     if (e.target.value < 1) {
-      setBpm(20);
+      setSetting({ ...setting, bpm: 1 });
       return;
     }
-    setBpm(e.target.value);
+    setSetting({ ...setting, bpm: e.target.value });
   };
   const addBpm = () => {
     stopHandler();
-    setBpm((prevBpm) => {
-      let newBpm = Number(prevBpm) + 1;
-      if (newBpm > 240) {
-        newBpm = 240;
+    setSetting((prevSetting) => {
+      let newBpm = Number(prevSetting.bpm) + 1;
+      if (newBpm > 300) {
+        newBpm = 300;
       }
-      return newBpm;
+      return { ...prevSetting, bpm: newBpm };
     });
   };
   const reduceBpm = () => {
     stopHandler();
-    setBpm((prevBpm) => {
-      let newBpm = Number(prevBpm) - 1;
+    setSetting((prevSetting) => {
+      let newBpm = Number(prevSetting.bpm) - 1;
       if (newBpm < 1) {
         newBpm = 1;
       }
-      return newBpm;
+      return { ...prevSetting, bpm: newBpm };
     });
   };
   return (
@@ -42,7 +42,7 @@ export default function BPM({ bpm, setBpm, stopHandler }) {
         <PlusMinusButton type="button" onClick={reduceBpm}>
           -
         </PlusMinusButton>
-        <BpmInput value={bpm} onChange={bpmChangeHandler} />
+        <BpmInput value={setting.bpm} onChange={bpmChangeHandler} />
         <PlusMinusButton type="button" onClick={addBpm}>
           +
         </PlusMinusButton>

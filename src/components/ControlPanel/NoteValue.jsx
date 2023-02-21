@@ -7,20 +7,24 @@ export default function NoteValue({ noteValue, setNoteValue, stopHandler }) {
     stopHandler();
     setNoteValue(inputValue);
   };
-  const noteValueArray = ["1n", "2n", "4n", "8n", "16n"];
-  const noteValueButtons = noteValueArray.map((inputNoteValue) => (noteValue === inputNoteValue ? (
-    <SelectedNoteValue key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
-      {`${inputNoteValue.replace("n", "")}` === "1"
-        ? "1"
-        : `1/${inputNoteValue.replace("n", "")}`}
-    </SelectedNoteValue>
-  ) : (
-    <NoteValueButton key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
-      {`${inputNoteValue.replace("n", "")}` === "1"
-        ? "1"
-        : `1/${inputNoteValue.replace("n", "")}`}
-    </NoteValueButton>
-  )));
+  const noteValueArray = ["1n", "2n.", "2n", "4n.", "4n", "8n.", "8n", "16n"];
+  const noteValueButtons = noteValueArray.map((inputNoteValue) => {
+    let showValue;
+    if (inputNoteValue.match(/(n\.)/) !== null) {
+      showValue = (1 / Number(inputNoteValue.replace("n.", ""))) * 16 * 1.5;
+    } else {
+      showValue = (1 / Number(inputNoteValue.replace("n", ""))) * 16;
+    }
+    return noteValue === inputNoteValue ? (
+      <SelectedNoteValue key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+        {`x${showValue}`}
+      </SelectedNoteValue>
+    ) : (
+      <NoteValueButton key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+        {`x${showValue}`}
+      </NoteValueButton>
+    );
+  });
   return (
     <NoteValueDiv>
       <NoteValueTitle>Note Value</NoteValueTitle>

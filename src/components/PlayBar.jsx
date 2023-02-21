@@ -48,12 +48,6 @@ const Indicator = styled.button`
   border-radius: 5px;
 `;
 
-const Input = styled.input`
-  position: absolute;
-  top: 35%;
-  left: 35%;
-  z-index: -1;
-`;
 const Div = styled.div`
   display: flex;
   flex-direction: column;
