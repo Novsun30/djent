@@ -22,15 +22,17 @@ export default function ControlPanel({
   setPlaying,
   noteValue,
   setNoteValue,
-  playBarRef,
   sharpFlat,
   setSharpFlat,
 }) {
   const [trackPanel, setTrackPanel] = useState(false);
   useEffect(() => {
     if (playing === "stopped") {
-      const playBar = playBarRef;
-      playBar.current.style.top = "0px";
+      const playBar = document.querySelectorAll("div.play-bar");
+      playBar.forEach((element) => {
+        const target = element;
+        target.style.top = "0px";
+      });
     }
   }, [playing]);
 
@@ -38,8 +40,11 @@ export default function ControlPanel({
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
     setPlaying(Tone.Transport.state);
-    const playBar = playBarRef;
-    playBar.current.style.top = "0px";
+    const playBar = document.querySelectorAll("div.play-bar");
+    playBar.forEach((element) => {
+      const target = element;
+      target.style.top = "0px";
+    });
   };
 
   const eidtTrack = () => {
@@ -56,7 +61,6 @@ export default function ControlPanel({
         totalBars={totalBars}
         sequence={sequence}
         setting={setting}
-        playBarRef={playBarRef}
         stopHandler={stopHandler}
       />
       <NoteValue noteValue={noteValue} setNoteValue={setNoteValue} stopHandler={stopHandler} />
@@ -68,8 +72,13 @@ export default function ControlPanel({
         setSequence={setSequence}
         stopHandler={stopHandler}
       />
-      <Button onClick={eidtTrack}>edit Track</Button>
-      <TrackPanel trackPanel={trackPanel} setTrackPanel={setTrackPanel} />
+      <Button onClick={eidtTrack}>Track</Button>
+      <TrackPanel
+        trackPanel={trackPanel}
+        setTrackPanel={setTrackPanel}
+        setting={setting}
+        setSetting={setSetting}
+      />
     </ContainerDiv>
   );
 }

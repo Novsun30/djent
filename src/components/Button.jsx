@@ -17,15 +17,4 @@ const StyledButton = styled.button`
   font-size: 20px;
   border-radius: 5px;
   cursor: pointer;
-  width: ${(props) => props.theme.width};
-  height: ${(props) => props.theme.height};
-  margin: ${(props) => props.theme.margin};
 `;
-
-StyledButton.defaultProps = {
-  theme: {
-    height: "auto",
-    width: "auto",
-    margin: 0,
-  },
-};

@@ -1,18 +1,15 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import { Scale, Note, transpose } from "tonal";
 import Button from "../Button";
+import SoundContext from "../../contexts/SoundContext";
 
 export default function Play({
-  playing,
-  setPlaying,
-  totalBars,
-  sequence,
-  setting,
-  playBarRef,
-  stopHandler,
+  playing, setPlaying, totalBars, sequence, setting, stopHandler,
 }) {
+  const [loop, setLoop] = useState(false);
+  const soundContext = useContext(SoundContext);
   const playHandler = async () => {
     if (Tone.context.state !== "running") {
       Tone.context.resume();
@@ -21,51 +18,38 @@ export default function Play({
       return;
     }
     if (playing === "started") {
-      Tone.Transport.pause();
+      Tone.Transport.stop();
       setPlaying(Tone.Transport.state);
       return;
     }
-    if (playing === "paused") {
-      Tone.Transport.start();
-      setPlaying(Tone.Transport.state);
-      return;
-    }
+    // if (playing === "paused") {
+    //   Tone.Transport.start();
+    //   setPlaying(Tone.Transport.state);
+    //   return;
+    // }
     const lastBar = totalBars[totalBars.length - 1];
     const key = Scale.degrees(setting.key);
     const tracks = Object.keys(sequence);
     tracks.forEach((track) => {
       const allDegrees = Object.keys(sequence[track]);
       allDegrees.forEach((degree) => {
-        let synth;
-        if (track === "triangle") {
-          synth = new Tone.Synth().toDestination();
-        }
-        if (track === "triangleBass") {
-          synth = new Tone.Synth({
-            oscillator: {
-              type: "sine",
-            },
-            envelope: {
-              attack: 0.005,
-              decay: 0.1,
-              sustain: 0.3,
-              release: 1,
-            },
-          }).toDestination();
-        }
-        synth.volume.value = -4;
         if (sequence[track][degree].length !== 0) {
+          let sound;
+          if (track === "sine") {
+            sound = new Tone.Synth().toDestination();
+          } else {
+            sound = soundContext[track];
+          }
           sequence[track][degree].forEach((item) => {
-            Tone.Transport.schedule(() => {
-              const now = Tone.now();
+            Tone.Transport.schedule((time) => {
               if (item.sharpFlat === "sharp") {
                 const note = Note.simplify(transpose(key(degree), "2m"));
-                synth.triggerAttackRelease(note, item.noteValue, now);
+                sound.triggerAttackRelease(note, item.noteValue, time);
               } else if (item.sharpFlat === "flat") {
                 const note = Note.simplify(transpose(key(degree), "-2m"));
-                synth.triggerAttackRelease(note, item.noteValue, now);
+                sound.triggerAttackRelease(note, item.noteValue, time);
               } else {
-                synth.triggerAttackRelease(Note.simplify(key(degree)), item.noteValue, now);
+                sound.triggerAttackRelease(Note.simplify(key(degree)), item.noteValue, time);
               }
             }, `${item.bar - 1}:0:${item.number}`);
           });
@@ -73,27 +57,35 @@ export default function Play({
       });
     });
 
-    Tone.Transport.schedule(() => {
-      Tone.Transport.stop();
-      Tone.Transport.cancel(0);
-      setPlaying(Tone.Transport.state);
-    }, `${lastBar}:0:0`);
     totalBars.forEach((bar) => {
       for (let i = 0; i < 16; i += 1) {
         Tone.Transport.schedule((time) => {
           Tone.Draw.schedule(() => {
-            const playBar = playBarRef;
+            const playBar = document.querySelectorAll("div.play-bar");
             const gap = Math.floor(i / 4) * 20;
             const height = (bar - 1) * 720 + i * 40 + gap;
-            playBar.current.style.top = `${height}px`;
+            playBar.forEach((element) => {
+              const target = element;
+              target.style.top = `${height}px`;
+            });
           }, time - 0.1);
         }, `${bar - 1}:0:${i}`);
       }
     });
-    console.log(sequence);
-    await Tone.start();
+    if (loop) {
+      Tone.Transport.loop = true;
+      Tone.Transport.loopStart = 0;
+      Tone.Transport.loopEnd = `${lastBar}:0:0`;
+    } else {
+      Tone.Transport.schedule((time) => {
+        Tone.Transport.stop(time);
+        Tone.Transport.cancel(0);
+        setPlaying(Tone.Transport.state);
+      }, `${lastBar}:0:0`);
+    }
     Tone.Transport.bpm.value = setting.bpm;
     Tone.Transport.start();
+    await Tone.start();
     setPlaying(Tone.Transport.state);
   };
 
@@ -103,7 +95,21 @@ export default function Play({
         stop
       </Button>
       <Button type="button" onClick={playHandler}>
-        {playing === "started" ? "pause" : "play"}
+        play
+      </Button>
+      <Button
+        onClick={(e) => {
+          stopHandler();
+          if (loop) {
+            setLoop(false);
+            e.target.style.background = "var(--button-default-color)";
+            return;
+          }
+          setLoop(true);
+          e.target.style.background = "var(--button-selected-color)";
+        }}
+      >
+        loop
       </Button>
     </>
   );

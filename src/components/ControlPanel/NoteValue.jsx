@@ -40,7 +40,7 @@ const NoteValueButton = styled(Button)`
 `;
 
 const SelectedNoteValue = styled(NoteValueButton)`
-  background: #aaa;
+  background: var(--button-selected-color);
 `;
 
 const NoteValueButtonDiv = styled.div`

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-export default function PlayBar({ totalBars, playBarRef }) {
+export default function PlayBar({ totalBars }) {
   const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
   const playingBar = totalBars.map((bar) => {
     const indicators = numbers.map((number) => {
@@ -11,7 +11,7 @@ export default function PlayBar({ totalBars, playBarRef }) {
             <BarTitle>{`${bar}-${number / 4 + 1}`}</BarTitle>
             <PlayingBarDiv>
               <Indicator />
-              <IndicatorBar ref={playBarRef} />
+              <IndicatorBar className="play-bar" />
             </PlayingBarDiv>
           </React.Fragment>
         );
@@ -56,8 +56,10 @@ const Div = styled.div`
 const BarTitle = styled.p`
   height: 20px;
   color: #fff;
-  text-align: center;
+  justify-content: center;
+  align-items: center;
   font-size: 18px;
+  display: flex;
 `;
 
 const IndicatorBar = styled.div`
