@@ -2,8 +2,11 @@ export default function overBarConverter(bar, number, noteValue) {
   const result = [];
   const noteValueTable = {
     "1n": 16,
+    "2n.": 12,
     "2n": 8,
+    "4n.": 6,
     "4n": 4,
+    "8n.": 3,
     "8n": 2,
   };
   const noteValueLength = noteValueTable[noteValue];
