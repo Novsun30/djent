@@ -44,8 +44,18 @@ export default function SharpFlat({ sharpFlat, setSharpFlat }) {
 }
 
 const FlatButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   color: var(--note-flat-color);
 `;
 const ShaprButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   color: var(--note-sharp-color);
 `;

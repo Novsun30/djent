@@ -4,7 +4,7 @@ import BottomPanel from "./BottomPanel";
 import NoteButton from "./NoteButton";
 import PlayBar from "./PlayBar";
 
-export default function Melody({
+export default function Rhythm({
   setting,
   sequence,
   setSequence,
@@ -13,23 +13,16 @@ export default function Melody({
   playing,
   setPlaying,
   noteValue,
-  degrees,
+  rhythmSet,
   track,
   sharpFlat,
 }) {
-  let targetDegree = degrees.default;
-  if (setting.track[track].bass) {
-    targetDegree = degrees.bass;
-  }
-  if (setting.track[track].lower) {
-    targetDegree = degrees.lower;
-  }
-  const bar = targetDegree.map((degree, i) => {
-    if (i === 6) {
+  const bar = rhythmSet.map((rhythm, i) => {
+    if (i === 1) {
       return (
-        <React.Fragment key={`${setting.track}-1-${degree}`}>
+        <React.Fragment key={`${setting.track}-1-${rhythm}`}>
           <NoteButton
-            degree={degree}
+            degree={rhythm}
             totalBars={totalBars}
             setTotalBars={setTotalBars}
             setSequence={setSequence}
@@ -44,11 +37,10 @@ export default function Melody({
         </React.Fragment>
       );
     }
-
     return (
       <NoteButton
-        key={`${setting.track}-1-${degree}`}
-        degree={degree}
+        key={`${setting.track}-1-${rhythm}`}
+        degree={rhythm}
         totalBars={totalBars}
         setTotalBars={setTotalBars}
         setSequence={setSequence}
@@ -61,19 +53,18 @@ export default function Melody({
       />
     );
   });
-
   if (setting.track[track].display) {
     return (
       <ShowMelodyDiv>
         <BarsDiv>{bar}</BarsDiv>
-        <BottomPanel setting={setting} degrees={degrees} track={track} />
+        <BottomPanel setting={setting} degrees={rhythmSet} track={track} />
       </ShowMelodyDiv>
     );
   }
   return (
     <HideMelodyDiv>
       <BarsDiv>{bar}</BarsDiv>
-      <BottomPanel setting={setting} degrees={degrees} track={track} />
+      <BottomPanel setting={setting} degrees={rhythmSet} track={track} />
     </HideMelodyDiv>
   );
 }

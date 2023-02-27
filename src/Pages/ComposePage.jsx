@@ -5,77 +5,149 @@ import Button from "../components/Button";
 import ControlPanel from "../components/ControlPanel";
 import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
+import Rhythm from "../components/Rhythm";
 
 export default function ComposePage() {
   const defaultDegrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const lowerDegrees = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1];
+  const bassDegrees = [-19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6];
+  const rhythmSet = ["kick", "snare", "closedHiHat"];
   const [setting, setSetting] = useState({
     key: "C4 major",
     bpm: "120",
-    melody: {
-      sine: { add: false, display: false },
-      Distortion_Guitar: { add: false, display: false },
-      synth: { add: false, display: false },
-      piano: { add: false, display: false },
+    track: {
+      sine: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: false,
+      },
+      Distortion_Guitar: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: false,
+      },
+      synth: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: false,
+      },
+      piano: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: false,
+      },
+      piano_lower: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: true,
+      },
+      bass: {
+        add: false,
+        display: false,
+        bass: true,
+        lower: false,
+      },
+      drum: {
+        add: false,
+        display: false,
+        bass: false,
+        lower: false,
+      },
     },
-    rhythm: false,
   });
-  const [degrees, setDegrees] = useState(defaultDegrees);
-  const [triangleSequence, setTriangleSequence] = useState(createSequence(degrees));
+  const [degrees, setDegrees] = useState({
+    default: defaultDegrees,
+    bass: bassDegrees,
+    lower: lowerDegrees,
+  });
+  const [triangleSequence, setTriangleSequence] = useState(createSequence(degrees, rhythmSet));
   const [totalBars, setTotalBars] = useState([1]);
   const [playing, setPlaying] = useState(Tone.Transport.state);
   const [noteValue, setNoteValue] = useState("16n");
   const [sharpFlat, setSharpFlat] = useState(false);
-  const melodyTracks = Object.keys(setting.melody).map((track) => (setting.melody[track] ? (
-    <Melody
-      key={track}
-      track={track}
-      setting={setting}
-      sequence={triangleSequence}
-      setSequence={setTriangleSequence}
-      totalBars={totalBars}
-      setTotalBars={setTotalBars}
-      playing={playing}
-      setPlaying={setPlaying}
-      noteValue={noteValue}
-      setNoteValue={setNoteValue}
-      degrees={degrees}
-      sharpFlat={sharpFlat}
-    />
-  ) : null));
+  const melodyTracks = Object.keys(setting.track).map((track) => {
+    if (track === "drum") {
+      return (
+        <Rhythm
+          key={track}
+          track={track}
+          setting={setting}
+          sequence={triangleSequence}
+          setSequence={setTriangleSequence}
+          totalBars={totalBars}
+          setTotalBars={setTotalBars}
+          playing={playing}
+          setPlaying={setPlaying}
+          noteValue={noteValue}
+          setNoteValue={setNoteValue}
+          rhythmSet={rhythmSet}
+          sharpFlat={sharpFlat}
+        />
+      );
+    }
+    return setting.track[track] ? (
+      <Melody
+        key={track}
+        track={track}
+        setting={setting}
+        sequence={triangleSequence}
+        setSequence={setTriangleSequence}
+        totalBars={totalBars}
+        setTotalBars={setTotalBars}
+        playing={playing}
+        setPlaying={setPlaying}
+        noteValue={noteValue}
+        setNoteValue={setNoteValue}
+        degrees={degrees}
+        sharpFlat={sharpFlat}
+      />
+    ) : null;
+  });
   useEffect(() => {
     let noDisplayTrack = true;
     let noAddedTrack = true;
-    Object.keys(setting.melody).forEach((track) => {
-      if (setting.melody[track].add) {
+    Object.keys(setting.track).forEach((track) => {
+      if (setting.track[track].add) {
         noAddedTrack = false;
       }
-      if (setting.melody[track].display) {
+      if (setting.track[track].display) {
         noDisplayTrack = false;
       }
     });
     if (noAddedTrack === false && noDisplayTrack) {
-      for (let i = 0; i < Object.keys(setting.melody).length; i += 1) {
-        const track = Object.keys(setting.melody)[i];
-        if (setting.melody[track].add) {
+      for (let i = 0; i < Object.keys(setting.track).length; i += 1) {
+        const track = Object.keys(setting.track)[i];
+        if (setting.track[track].add) {
           setSetting({
             ...setting,
-            melody: { ...setting.melody, [track]: { add: true, display: true } },
+            track: {
+              ...setting.track,
+              [track]: { ...setting.track[track], add: true, display: true },
+            },
           });
           break;
         }
       }
     }
-  }, [setting.melody]);
+    if (setting.track.drum.display) {
+      setNoteValue("16n");
+      setSharpFlat(false);
+    }
+  }, [setting.track]);
   function checkTracks() {
-    // let defaultMessage = "No track, please add track first (click track button)";
     let defaultMessage = (
       <>
         <NoTrackMessage>No track, please add track first </NoTrackMessage>
         <NoTrackMessage>(click track button)</NoTrackMessage>
       </>
     );
-    Object.keys(setting.melody).forEach((track) => {
-      if (setting.melody[track].add) {
+    Object.keys(setting.track).forEach((track) => {
+      if (setting.track[track].add) {
         defaultMessage = null;
       }
     });
@@ -83,9 +155,9 @@ export default function ComposePage() {
   }
   const toggleTrack = (track) => () => {
     let prevtarget = null;
-    for (let i = 0; i < Object.entries(setting.melody).length; i += 1) {
-      if (Object.entries(setting.melody)[i][1].display) {
-        [prevtarget] = Object.entries(setting.melody)[i];
+    for (let i = 0; i < Object.entries(setting.track).length; i += 1) {
+      if (Object.entries(setting.track)[i][1].display) {
+        [prevtarget] = Object.entries(setting.track)[i];
         break;
       }
     }
@@ -94,15 +166,15 @@ export default function ComposePage() {
     }
     setSetting({
       ...setting,
-      melody: {
-        ...setting.melody,
-        [track]: { add: true, display: true },
-        [prevtarget]: { add: true, display: false },
+      track: {
+        ...setting.track,
+        [track]: { ...setting.track[track], add: true, display: true },
+        [prevtarget]: { ...setting.track[prevtarget], add: true, display: false },
       },
     });
   };
-  const trackSelector = Object.keys(setting.melody).map((track) => {
-    if (setting.melody[track].display) {
+  const trackSelector = Object.keys(setting.track).map((track) => {
+    if (setting.track[track].display) {
       return (
         <div key={track}>
           <SelectedTrack track={track} onClick={toggleTrack(track)}>
@@ -112,7 +184,7 @@ export default function ComposePage() {
       );
     }
 
-    if (setting.melody[track].add) {
+    if (setting.track[track].add) {
       return (
         <div key={track}>
           <AddedTrack track={track} onClick={toggleTrack(track)}>
@@ -124,10 +196,28 @@ export default function ComposePage() {
     return null;
   });
 
-  function createSequence(inputDegrees) {
+  function createSequence(inputDegrees, inputRhythmSet) {
     let result = {};
-    Object.keys(setting.melody).forEach((track) => {
-      inputDegrees.forEach((degree) => {
+    Object.keys(setting.track).forEach((track) => {
+      if (track === "drum") {
+        inputRhythmSet.forEach((rhythm) => {
+          result = { ...result, [track]: { ...result[track], [rhythm]: [] } };
+        });
+        return;
+      }
+      if (setting.track[track].bass) {
+        inputDegrees.bass.forEach((degree) => {
+          result = { ...result, [track]: { ...result[track], [degree]: [] } };
+        });
+        return;
+      }
+      if (setting.track[track].lower) {
+        inputDegrees.lower.forEach((degree) => {
+          result = { ...result, [track]: { ...result[track], [degree]: [] } };
+        });
+        return;
+      }
+      inputDegrees.default.forEach((degree) => {
         result = { ...result, [track]: { ...result[track], [degree]: [] } };
       });
     });

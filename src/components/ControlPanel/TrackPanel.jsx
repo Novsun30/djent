@@ -21,24 +21,30 @@ export default function TrackPanel({
     }
     setSetting({
       ...setting,
-      melody: { ...setting.melody, [selectedTrack]: { add: true, display: false } },
+      track: {
+        ...setting.track,
+        [selectedTrack]: { ...setting.track[selectedTrack], add: true, display: false },
+      },
     });
     setSelectedTrack(null);
   };
   const removeTrack = (track) => () => {
     setSetting({
       ...setting,
-      melody: { ...setting.melody, [track]: { add: false, display: false } },
+      track: {
+        ...setting.track,
+        [track]: { ...setting.track[selectedTrack], add: false, display: false },
+      },
     });
     setSelectedTrack(null);
   };
-  const tracks = Object.keys(setting.melody).map((track) => (setting.melody[track].add ? (
+  const tracks = Object.keys(setting.track).map((track) => (setting.track[track].add ? (
     <TrackDiv key={track}>
       <TrackTitle>{track}</TrackTitle>
       <DeleteButton onClick={removeTrack(track)}>X</DeleteButton>
     </TrackDiv>
   ) : null));
-  const TrackList = Object.keys(setting.melody).map((track) => (setting.melody[track].add ? null : (
+  const TrackList = Object.keys(setting.track).map((track) => (setting.track[track].add ? null : (
     <TrackInputDiv key={track}>
       <CustomRadioInput type="radio" name="track" onClick={selectTrack(track)} />
       {track === selectedTrack ? (
@@ -65,8 +71,7 @@ export default function TrackPanel({
       <TrackListDiv>
         <ContainerTitle>Add new Track</ContainerTitle>
         {TrackList}
-        {selectedTrack !== null ? <Button>Demo</Button> : null}
-        <Button onClick={addTrack}>Add</Button>
+        {selectedTrack !== null ? <Button onClick={addTrack}>Add</Button> : null}
       </TrackListDiv>
     </TrackPanelDiv>
   ) : null;

@@ -1,22 +1,59 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext } from "react";
 import { Scale, Note } from "tonal";
 import styled from "styled-components";
-import * as Tone from "tone";
 import SoundContext from "../contexts/SoundContext";
 
 export default function BottomPanel({ setting, degrees, track }) {
   const key = Scale.degrees(setting.key);
   const soundContext = useContext(SoundContext);
-  const soundDemo = degrees.map((degree, i) => {
+  const rhythmImages = {
+    kick: "/images/kick.svg",
+    snare: "/images/snare.svg",
+    closedHiHat: "/images/closedHiHat.svg",
+  };
+  let targetDegree = degrees.default;
+  if (setting.track[track].bass) {
+    targetDegree = degrees.bass;
+  }
+  if (setting.track[track].lower) {
+    targetDegree = degrees.lower;
+  }
+  if (track === "drum") {
+    targetDegree = degrees;
+  }
+  const soundDemo = targetDegree.map((degree, i) => {
     const note = Note.simplify(key(degree));
     const playSound = () => {
+      if (track === "drum") {
+        const sound = soundContext[track][degree];
+        sound.start(0);
+        return;
+      }
       const sound = soundContext[track];
-      sound.volume.value = -4;
       sound.triggerAttackRelease(note, "8n");
     };
+    if (track === "drum") {
+      if (i === 1) {
+        return (
+          <React.Fragment key={degree}>
+            <SoundDiv onClick={playSound}>
+              <img src={rhythmImages[degree]} alt={degree} />
+            </SoundDiv>
+            <EmptyDiv />
+          </React.Fragment>
+        );
+      }
+      return (
+        <React.Fragment key={degree}>
+          <SoundDiv onClick={playSound}>
+            <img src={rhythmImages[degree]} alt={degree} />
+          </SoundDiv>
+        </React.Fragment>
+      );
+    }
     if (i === 6) {
       return (
-        <React.Fragment key={note}>
+        <React.Fragment key={degree}>
           <SoundDiv onClick={playSound}>
             <SoundText>{note}</SoundText>
           </SoundDiv>
@@ -26,7 +63,7 @@ export default function BottomPanel({ setting, degrees, track }) {
     }
 
     return (
-      <SoundDiv key={note} onClick={playSound}>
+      <SoundDiv key={degree} onClick={playSound}>
         <SoundText>{note}</SoundText>
       </SoundDiv>
     );

@@ -14,19 +14,10 @@ export default function Play({
     if (Tone.context.state !== "running") {
       Tone.context.resume();
     }
-    if (totalBars.length === 0) {
-      return;
-    }
     if (playing === "started") {
-      Tone.Transport.stop();
-      setPlaying(Tone.Transport.state);
+      stopHandler();
       return;
     }
-    // if (playing === "paused") {
-    //   Tone.Transport.start();
-    //   setPlaying(Tone.Transport.state);
-    //   return;
-    // }
     const lastBar = totalBars[totalBars.length - 1];
     const key = Scale.degrees(setting.key);
     const tracks = Object.keys(sequence);
@@ -35,6 +26,15 @@ export default function Play({
       allDegrees.forEach((degree) => {
         if (sequence[track][degree].length !== 0) {
           let sound;
+          if (track === "drum") {
+            sound = soundContext[track][degree];
+            sequence[track][degree].forEach((item) => {
+              Tone.Transport.schedule((time) => {
+                sound.start(time);
+              }, `${item.bar - 1}:0:${item.number}`);
+            });
+            return;
+          }
           if (track === "sine") {
             sound = new Tone.Synth().toDestination();
           } else {
@@ -91,11 +91,8 @@ export default function Play({
 
   return (
     <>
-      <Button type="button" onClick={stopHandler}>
-        stop
-      </Button>
       <Button type="button" onClick={playHandler}>
-        play
+        {playing === "started" ? "stop" : "play"}
       </Button>
       <Button
         onClick={(e) => {

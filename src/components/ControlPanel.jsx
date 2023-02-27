@@ -63,8 +63,12 @@ export default function ControlPanel({
         setting={setting}
         stopHandler={stopHandler}
       />
-      <NoteValue noteValue={noteValue} setNoteValue={setNoteValue} stopHandler={stopHandler} />
-      <SharpFlat sharpFlat={sharpFlat} setSharpFlat={setSharpFlat} />
+      {setting.track.drum.display ? null : (
+        <>
+          <NoteValue noteValue={noteValue} setNoteValue={setNoteValue} stopHandler={stopHandler} />
+          <SharpFlat sharpFlat={sharpFlat} setSharpFlat={setSharpFlat} />
+        </>
+      )}
       <Bar
         degrees={degrees}
         totalBars={totalBars}

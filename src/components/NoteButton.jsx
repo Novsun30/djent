@@ -208,6 +208,7 @@ export default function NoteButton({
   };
 
   const removeSequence = (inputTrack, inputDegree, bar, number) => () => {
+    stopTransport();
     setSequence({
       ...sequence,
       [inputTrack]: {
