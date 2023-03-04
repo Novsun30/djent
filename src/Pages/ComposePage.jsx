@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import Button from "../components/Button";
@@ -6,17 +6,31 @@ import ControlPanel from "../components/ControlPanel";
 import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
 import Rhythm from "../components/Rhythm";
+import UserContext from "../contexts/UserContext";
 
 export default function ComposePage() {
+  const { user, setUser } = useContext(UserContext);
   const defaultDegrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const lowerDegrees = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1];
   const bassDegrees = [-19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6];
-  const rhythmSet = ["kick", "snare", "closedHiHat"];
+  const rhythmSet = [
+    "closedHiHat",
+    "openHiHat",
+    "kick",
+    "snare",
+    "sideStick",
+    "hiTom",
+    "midTom",
+    "floorTom",
+    "ride",
+    "crash",
+  ];
   const [setting, setSetting] = useState({
+    song: "未命名",
     key: "C4 major",
     bpm: "120",
     track: {
-      sine: {
+      Sine: {
         add: false,
         display: false,
         bass: false,
@@ -28,31 +42,31 @@ export default function ComposePage() {
         bass: false,
         lower: false,
       },
-      synth: {
+      Synth: {
         add: false,
         display: false,
         bass: false,
         lower: false,
       },
-      piano: {
+      Piano: {
         add: false,
         display: false,
         bass: false,
         lower: false,
       },
-      piano_lower: {
+      Piano_Lower: {
         add: false,
         display: false,
         bass: false,
         lower: true,
       },
-      bass: {
+      Bass: {
         add: false,
         display: false,
         bass: true,
         lower: false,
       },
-      drum: {
+      Drum: {
         add: false,
         display: false,
         bass: false,
@@ -64,14 +78,17 @@ export default function ComposePage() {
     default: defaultDegrees,
     bass: bassDegrees,
     lower: lowerDegrees,
+    rhythmSet,
   });
-  const [triangleSequence, setTriangleSequence] = useState(createSequence(degrees, rhythmSet));
+  const [triangleSequence, setTriangleSequence] = useState(createSequence(degrees));
   const [totalBars, setTotalBars] = useState([1]);
   const [playing, setPlaying] = useState(Tone.Transport.state);
   const [noteValue, setNoteValue] = useState("16n");
   const [sharpFlat, setSharpFlat] = useState(false);
+  const [editSongTitle, setEditSongTitle] = useState(false);
+  const [songTitle, setSongTitle] = useState(setting.song);
   const melodyTracks = Object.keys(setting.track).map((track) => {
-    if (track === "drum") {
+    if (track === "Drum") {
       return (
         <Rhythm
           key={track}
@@ -85,7 +102,7 @@ export default function ComposePage() {
           setPlaying={setPlaying}
           noteValue={noteValue}
           setNoteValue={setNoteValue}
-          rhythmSet={rhythmSet}
+          degrees={degrees}
           sharpFlat={sharpFlat}
         />
       );
@@ -108,6 +125,7 @@ export default function ComposePage() {
       />
     ) : null;
   });
+
   useEffect(() => {
     let noDisplayTrack = true;
     let noAddedTrack = true;
@@ -134,7 +152,7 @@ export default function ComposePage() {
         }
       }
     }
-    if (setting.track.drum.display) {
+    if (setting.track.Drum.display) {
       setNoteValue("16n");
       setSharpFlat(false);
     }
@@ -142,8 +160,8 @@ export default function ComposePage() {
   function checkTracks() {
     let defaultMessage = (
       <>
-        <NoTrackMessage>No track, please add track first </NoTrackMessage>
-        <NoTrackMessage>(click track button)</NoTrackMessage>
+        <NoTrackMessage>尚無音軌，請先新增音軌</NoTrackMessage>
+        <NoTrackMessage>( 點擊音軌按鈕 )</NoTrackMessage>
       </>
     );
     Object.keys(setting.track).forEach((track) => {
@@ -152,6 +170,15 @@ export default function ComposePage() {
       }
     });
     return defaultMessage;
+  }
+  function showTrackSelector() {
+    let result = false;
+    Object.keys(setting.track).forEach((track) => {
+      if (setting.track[track].add) {
+        result = true;
+      }
+    });
+    return result;
   }
   const toggleTrack = (track) => () => {
     let prevtarget = null;
@@ -188,7 +215,7 @@ export default function ComposePage() {
       return (
         <div key={track}>
           <AddedTrack track={track} onClick={toggleTrack(track)}>
-            {track}
+            {`${track.replace("_", " ")}`}
           </AddedTrack>
         </div>
       );
@@ -196,11 +223,11 @@ export default function ComposePage() {
     return null;
   });
 
-  function createSequence(inputDegrees, inputRhythmSet) {
+  function createSequence(inputDegrees) {
     let result = {};
     Object.keys(setting.track).forEach((track) => {
-      if (track === "drum") {
-        inputRhythmSet.forEach((rhythm) => {
+      if (track === "Drum") {
+        inputDegrees.rhythmSet.forEach((rhythm) => {
           result = { ...result, [track]: { ...result[track], [rhythm]: [] } };
         });
         return;
@@ -227,6 +254,58 @@ export default function ComposePage() {
     <>
       <NavBar />
       <Main>
+        {user !== null ? (
+          <SongTitleDiv>
+            {editSongTitle ? (
+              <>
+                <SongTitleInput
+                  value={songTitle}
+                  onChange={(e) => {
+                    setSongTitle(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setSetting({ ...setting, song: songTitle });
+                      setEditSongTitle(false);
+                    }
+                  }}
+                />
+                <YesNoImg
+                  src="images/icons/confirm.svg"
+                  alt="confirm"
+                  onClick={() => {
+                    setSetting({ ...setting, song: songTitle });
+                    setEditSongTitle(false);
+                  }}
+                />
+                <YesNoImg
+                  src="images/icons/cancel.svg"
+                  alt="cancel"
+                  onClick={() => {
+                    setEditSongTitle(false);
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <SongTitle>{setting.song}</SongTitle>
+                <EditImg
+                  alt="edit"
+                  src="images/icons/edit.svg"
+                  onClick={() => {
+                    setEditSongTitle(true);
+                  }}
+                />
+              </>
+            )}
+          </SongTitleDiv>
+        ) : (
+          <WaringDiv>
+            <WarningImg src="images/icons/warning.svg" alt="warning" />
+            <WarningTitle>目前未登入，請先登入以儲存進度</WarningTitle>
+          </WaringDiv>
+        )}
+
         <ControlPanel
           sequence={triangleSequence}
           setSequence={setTriangleSequence}
@@ -244,10 +323,12 @@ export default function ComposePage() {
         />
         {melodyTracks}
         {checkTracks()}
-        <TrackSelectorDiv>
-          {trackSelector}
-          {setting.rhythm ? <div>rhythm</div> : null}
-        </TrackSelectorDiv>
+        {showTrackSelector() ? (
+          <TrackSelectorDiv>
+            <TrackSelectorTitle>Tracks</TrackSelectorTitle>
+            <TrackSelectorContent>{trackSelector}</TrackSelectorContent>
+          </TrackSelectorDiv>
+        ) : null}
       </Main>
     </>
   );
@@ -270,7 +351,60 @@ const SelectedTrack = styled(Button)`
 `;
 
 const TrackSelectorDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #111;
+  border-radius: 8px;
+  width: 300px;
+  padding: 20px 0;
   position: fixed;
   right: 400px;
   top: 300px;
+`;
+const TrackSelectorTitle = styled.p`
+  color: #eee;
+`;
+const TrackSelectorContent = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const SongTitleDiv = styled.div`
+  display: flex;
+  margin: 5px 0;
+`;
+const SongTitle = styled.p`
+  font-size: 32px;
+  color: #eee;
+`;
+const SongTitleInput = styled.input`
+  font-size: 32px;
+  padding: 1px;
+  text-align: center;
+  border-radius: 8px;
+  width: 275px;
+`;
+
+const EditImg = styled.img`
+  cursor: pointer;
+  margin-left: 12px;
+`;
+
+const YesNoImg = styled.img`
+  transform: scale(1.6);
+  cursor: pointer;
+  margin-left: 20px;
+`;
+const WaringDiv = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+`;
+const WarningTitle = styled.p`
+  font-size: 20px;
+  margin-left: 5px;
+  color: #eee;
+`;
+const WarningImg = styled.img`
+  width: 35px;
 `;

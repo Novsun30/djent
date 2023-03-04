@@ -13,12 +13,12 @@ export default function Rhythm({
   playing,
   setPlaying,
   noteValue,
-  rhythmSet,
+  degrees,
   track,
   sharpFlat,
 }) {
-  const bar = rhythmSet.map((rhythm, i) => {
-    if (i === 1) {
+  const bar = degrees.rhythmSet.map((rhythm, i) => {
+    if (i === 4) {
       return (
         <React.Fragment key={`${setting.track}-1-${rhythm}`}>
           <NoteButton
@@ -57,14 +57,14 @@ export default function Rhythm({
     return (
       <ShowMelodyDiv>
         <BarsDiv>{bar}</BarsDiv>
-        <BottomPanel setting={setting} degrees={rhythmSet} track={track} />
+        <BottomPanel setting={setting} degrees={degrees} track={track} />
       </ShowMelodyDiv>
     );
   }
   return (
     <HideMelodyDiv>
       <BarsDiv>{bar}</BarsDiv>
-      <BottomPanel setting={setting} degrees={rhythmSet} track={track} />
+      <BottomPanel setting={setting} degrees={degrees} track={track} />
     </HideMelodyDiv>
   );
 }

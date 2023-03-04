@@ -26,7 +26,7 @@ export default function Play({
       allDegrees.forEach((degree) => {
         if (sequence[track][degree].length !== 0) {
           let sound;
-          if (track === "drum") {
+          if (track === "Drum") {
             sound = soundContext[track][degree];
             sequence[track][degree].forEach((item) => {
               Tone.Transport.schedule((time) => {
@@ -35,7 +35,7 @@ export default function Play({
             });
             return;
           }
-          if (track === "sine") {
+          if (track === "Sine") {
             sound = new Tone.Synth().toDestination();
           } else {
             sound = soundContext[track];
@@ -92,22 +92,56 @@ export default function Play({
   return (
     <>
       <Button type="button" onClick={playHandler}>
-        {playing === "started" ? "stop" : "play"}
+        {playing === "started" ? (
+          <img alt="stop" src="images/icons/stop.svg" />
+        ) : (
+          <img alt="play" src="images/icons/play.svg" />
+        )}
       </Button>
-      <Button
-        onClick={(e) => {
-          stopHandler();
-          if (loop) {
-            setLoop(false);
-            e.target.style.background = "var(--button-default-color)";
-            return;
-          }
-          setLoop(true);
-          e.target.style.background = "var(--button-selected-color)";
-        }}
-      >
-        loop
-      </Button>
+
+      {loop ? (
+        <SelectedButton
+          onClick={(e) => {
+            stopHandler();
+            if (loop) {
+              setLoop(false);
+              e.target.style.background = "var(--button-default-color)";
+              return;
+            }
+            setLoop(true);
+            e.target.style.background = "var(--button-selected-color)";
+          }}
+        >
+          <SelectedImg alt="loop" src="images/icons/loop.svg" />
+        </SelectedButton>
+      ) : (
+        <StyledButton
+          onClick={(e) => {
+            stopHandler();
+            if (loop) {
+              setLoop(false);
+              e.target.style.background = "var(--button-default-color)";
+              return;
+            }
+            setLoop(true);
+            e.target.style.background = "var(--button-selected-color)";
+          }}
+        >
+          <img alt="loop" src="images/icons/loop.svg" />
+        </StyledButton>
+      )}
     </>
   );
 }
+const StyledButton = styled(Button)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const SelectedButton = styled(StyledButton)`
+  background: var(--button-selected-color);
+`;
+
+const SelectedImg = styled.img`
+  background: var(--button-selected-color);
+`;

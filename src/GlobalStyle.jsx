@@ -12,6 +12,10 @@ const GlobalStyle = createGlobalStyle`
   body{
     background: var(--main-background-color);
   }
+  a{
+    text-decoration:none;
+    
+  }
   :root {
     --note-color: #fff6ee;
     --note-selected-color: #F80;
@@ -22,7 +26,7 @@ const GlobalStyle = createGlobalStyle`
     --button-default-color:#666;
     --button-selected-color: #ff7a1f;
     --play-indicator-color: #A32A47;
-    --waring-text-color: #A32A47;
+    --waring-text-color: #cc062a;
     --main-text-color: #EEE;
   }
 `;

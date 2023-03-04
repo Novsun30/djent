@@ -7,9 +7,16 @@ export default function BottomPanel({ setting, degrees, track }) {
   const key = Scale.degrees(setting.key);
   const soundContext = useContext(SoundContext);
   const rhythmImages = {
-    kick: "/images/kick.svg",
-    snare: "/images/snare.svg",
-    closedHiHat: "/images/closedHiHat.svg",
+    kick: "/images/drum/kick.svg",
+    snare: "/images/drum/snare.svg",
+    hiTom: "/images/drum/hiTom.svg",
+    midTom: "/images/drum/midTom.svg",
+    floorTom: "/images/drum/floorTom.svg",
+    closedHiHat: "/images/drum/closedHiHat.svg",
+    openHiHat: "/images/drum/openHiHat.svg",
+    crash: "/images/drum/crash.svg",
+    ride: "/images/drum/ride.svg",
+    sideStick: "/images/drum/sideStick.svg",
   };
   let targetDegree = degrees.default;
   if (setting.track[track].bass) {
@@ -18,13 +25,13 @@ export default function BottomPanel({ setting, degrees, track }) {
   if (setting.track[track].lower) {
     targetDegree = degrees.lower;
   }
-  if (track === "drum") {
-    targetDegree = degrees;
+  if (track === "Drum") {
+    targetDegree = degrees.rhythmSet;
   }
   const soundDemo = targetDegree.map((degree, i) => {
     const note = Note.simplify(key(degree));
     const playSound = () => {
-      if (track === "drum") {
+      if (track === "Drum") {
         const sound = soundContext[track][degree];
         sound.start(0);
         return;
@@ -32,12 +39,12 @@ export default function BottomPanel({ setting, degrees, track }) {
       const sound = soundContext[track];
       sound.triggerAttackRelease(note, "8n");
     };
-    if (track === "drum") {
-      if (i === 1) {
+    if (track === "Drum") {
+      if (i === 4) {
         return (
           <React.Fragment key={degree}>
             <SoundDiv onClick={playSound}>
-              <img src={rhythmImages[degree]} alt={degree} />
+              <DrumImage src={rhythmImages[degree]} alt={degree} />
             </SoundDiv>
             <EmptyDiv />
           </React.Fragment>
@@ -46,7 +53,7 @@ export default function BottomPanel({ setting, degrees, track }) {
       return (
         <React.Fragment key={degree}>
           <SoundDiv onClick={playSound}>
-            <img src={rhythmImages[degree]} alt={degree} />
+            <DrumImage src={rhythmImages[degree]} alt={degree} />
           </SoundDiv>
         </React.Fragment>
       );
@@ -80,7 +87,7 @@ const BottomDiv = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 10;
+  z-index: 1;
   height: 125px;
   width: 100%;
   background: #333;
@@ -98,7 +105,7 @@ const SoundDiv = styled.div`
   height: 100%;
   width: 50px;
   background: #444;
-  outline: 1px solid #999;
+  outline: 1px solid #d70dff;
   cursor: pointer;
 `;
 
@@ -110,4 +117,9 @@ const SoundText = styled.p`
 const EmptyDiv = styled.div`
   height: 100%;
   width: 40px;
+`;
+
+const DrumImage = styled.img`
+  width: 40px;
+  height: 40px;
 `;

@@ -148,7 +148,7 @@ export default function SelectedNote({ onClick, info, sequence }) {
 const SixteenthNote = styled.button`
   display: block;
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 30px;

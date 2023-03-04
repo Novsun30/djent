@@ -12,6 +12,9 @@ export default function Button({
 }
 
 const StyledButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: var(--main-button-color);
   padding: 5px;
   font-size: 20px;

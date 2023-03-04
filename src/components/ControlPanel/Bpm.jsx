@@ -73,7 +73,9 @@ const BpmInput = styled.input`
   text-align: center;
 `;
 
-const BpmControlDiv = styled.div``;
+const BpmControlDiv = styled.div`
+  display: flex;
+`;
 
 const BpmText = styled.p`
   color: var(--main-text-color);

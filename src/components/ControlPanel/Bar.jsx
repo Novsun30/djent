@@ -3,7 +3,12 @@ import styled from "styled-components";
 import Button from "../Button";
 
 export default function Bar({
-  degrees, totalBars, setTotalBars, setSequence, stopHandler,
+  degrees,
+  totalBars,
+  setTotalBars,
+  setSequence,
+  stopHandler,
+  setting,
 }) {
   const addBar = () => {
     stopHandler();
@@ -20,7 +25,18 @@ export default function Bar({
       let result = { ...prevSequence };
       const allTracks = Object.keys(prevSequence);
       allTracks.forEach((track) => {
-        degrees.forEach((element) => {
+        let targetDegree = degrees.default;
+        if (setting.track[track].bass) {
+          targetDegree = degrees.bass;
+        }
+        if (setting.track[track].lower) {
+          targetDegree = degrees.lower;
+        }
+        if (track === "drum") {
+          targetDegree = degrees.rhythmSet;
+        }
+
+        targetDegree.forEach((element) => {
           const newNotes = prevSequence[track][element].filter(
             (el) => !(el.bar === targetBar || (el.bar === targetBar - 1 && el.overBar === true)),
           );

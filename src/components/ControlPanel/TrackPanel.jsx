@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
+import CustomInput from "../CustomInput";
+import Mask from "../Mask";
 
 export default function TrackPanel({
   trackPanel, setTrackPanel, setting, setSetting,
@@ -40,13 +42,13 @@ export default function TrackPanel({
   };
   const tracks = Object.keys(setting.track).map((track) => (setting.track[track].add ? (
     <TrackDiv key={track}>
-      <TrackTitle>{track}</TrackTitle>
+      <TrackTitle>{track.replace("_", " ")}</TrackTitle>
       <DeleteButton onClick={removeTrack(track)}>X</DeleteButton>
     </TrackDiv>
   ) : null));
   const TrackList = Object.keys(setting.track).map((track) => (setting.track[track].add ? null : (
     <TrackInputDiv key={track}>
-      <CustomRadioInput type="radio" name="track" onClick={selectTrack(track)} />
+      <CustomInput type="radio" name="track" onClick={selectTrack(track)} />
       {track === selectedTrack ? (
         <SelectedTrackTitle>{track.replace("_", " ")}</SelectedTrackTitle>
       ) : (
@@ -55,25 +57,25 @@ export default function TrackPanel({
     </TrackInputDiv>
   )));
   return trackPanel === true ? (
-    <TrackPanelDiv>
-      <CloseButton
+    <>
+      <TrackPanelDiv>
+        <MyTracksDiv>
+          <ContainerTitle>目前音軌</ContainerTitle>
+          {tracks}
+        </MyTracksDiv>
+        <TrackListDiv>
+          <ContainerTitle>新增音軌</ContainerTitle>
+          {TrackList}
+          {selectedTrack !== null ? <Button onClick={addTrack}>新增</Button> : null}
+        </TrackListDiv>
+      </TrackPanelDiv>
+      <Mask
         onClick={() => {
           setTrackPanel(false);
           setSelectedTrack(null);
         }}
-      >
-        X
-      </CloseButton>
-      <MyTracksDiv>
-        <ContainerTitle> Tracks</ContainerTitle>
-        {tracks}
-      </MyTracksDiv>
-      <TrackListDiv>
-        <ContainerTitle>Add new Track</ContainerTitle>
-        {TrackList}
-        {selectedTrack !== null ? <Button onClick={addTrack}>Add</Button> : null}
-      </TrackListDiv>
-    </TrackPanelDiv>
+      />
+    </>
   ) : null;
 }
 
@@ -83,6 +85,7 @@ const TrackPanelDiv = styled.div`
   justify-content: space-around;
   width: 500px;
   position: fixed;
+  z-index: 4;
   top: 200px;
   height: 500px;
   background: #111;
@@ -112,12 +115,6 @@ const DeleteButton = styled(Button)`
   background: #a32a47;
   margin: 4px 0 0 5px;
 `;
-const CloseButton = styled(DeleteButton)`
-  margin: 0;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-`;
 
 const MyTracksDiv = styled.div``;
 
@@ -137,34 +134,4 @@ const TrackInputTitile = styled.p`
 `;
 const SelectedTrackTitle = styled(TrackInputTitile)`
   color: var(--note-selected-color);
-`;
-const CustomRadioInput = styled.input`
-  cursor: pointer;
-  position: relative;
-  top: 5px;
-  &:after {
-    display: block;
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    background: #111;
-    border-radius: 100%;
-    border: 2px solid #666;
-  }
-  &:checked:after {
-    border: 2px solid var(--note-selected-color);
-  }
-  &:checked:before {
-    display: block;
-    position: absolute;
-    z-index: 10;
-    top: 6px;
-    left: 6px;
-    content: "";
-    height: 12px;
-    width: 12px;
-    background: var(--note-selected-color);
-    border-radius: 100%;
-  }
 `;
