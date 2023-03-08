@@ -32,17 +32,20 @@ export default function SharpFlat({ sharpFlat, setSharpFlat }) {
     flatRef.current.style.borderColor = "#000";
   };
   return (
-    <>
-      <FlatButton myref={flatRef} onClick={setFlat}>
-        b
-      </FlatButton>
+    <Container>
       <ShaprButton myref={sharpRef} onClick={setSharp}>
         #
       </ShaprButton>
-    </>
+      <FlatButton myref={flatRef} onClick={setFlat}>
+        b
+      </FlatButton>
+    </Container>
   );
 }
-
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 const FlatButton = styled(Button)`
   display: flex;
   align-items: center;
@@ -50,6 +53,7 @@ const FlatButton = styled(Button)`
   width: 40px;
   height: 40px;
   color: var(--note-flat-color);
+  margin: 2px;
 `;
 const ShaprButton = styled(Button)`
   display: flex;
@@ -58,4 +62,5 @@ const ShaprButton = styled(Button)`
   width: 40px;
   height: 40px;
   color: var(--note-sharp-color);
+  margin: 2px;
 `;

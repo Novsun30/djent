@@ -32,6 +32,7 @@ export default function ControlPanel({
   setNoteValue,
   sharpFlat,
   setSharpFlat,
+  stopHandler,
 }) {
   const { user, setUser } = useContext(UserContext);
   const [trackPanel, setTrackPanel] = useState(false);
@@ -46,25 +47,56 @@ export default function ControlPanel({
     }
   }, [playing]);
 
-  const stopHandler = () => {
-    Tone.Transport.stop();
-    Tone.Transport.cancel(0);
-    setPlaying(Tone.Transport.state);
-    const playBar = document.querySelectorAll("div.play-bar");
-    playBar.forEach((element) => {
-      const target = element;
-      target.style.top = "0px";
-    });
-  };
-
-  const eidtTrack = () => {
+  const editTrack = () => {
     setTrackPanel(true);
+  };
+  const saveProject = async () => {
+    if (user.curretSong === null) {
+      const collectionRef = collection(db, "user", auth.currentUser.uid, "song");
+      const addRef = await addDoc(collectionRef, {
+        id: "",
+        setting,
+        sequence,
+      });
+      await updateDoc(doc(db, "user", auth.currentUser.uid, "song", addRef.id), {
+        id: addRef.id,
+      });
+      const colRef = collection(db, "user", auth.currentUser.uid, "song");
+      const songSnap = await getDocs(colRef);
+      setUser({
+        ...user,
+        song: songSnap.docs.map((data) => ({ ...data.data() })),
+        curretSong: addRef.id,
+      });
+      return;
+    }
+    await updateDoc(doc(db, "user", auth.currentUser.uid, "song", user.currentSong), {
+      setting,
+      sequence,
+    });
+    const colRef = collection(db, "user", auth.currentUser.uid, "song");
+    const songSnap = await getDocs(colRef);
+    setUser({
+      ...user,
+      song: songSnap.docs.map((data) => ({ ...data.data() })),
+    });
   };
 
   return (
     <ContainerDiv>
       <Key setting={setting} setSetting={setSetting} stopHandler={stopHandler} />
-      <BPM setting={setting} setSetting={setSetting} stopHandler={stopHandler} />
+      <BpmBarDiv>
+        <BPM setting={setting} setSetting={setSetting} stopHandler={stopHandler} />
+        <Bar
+          degrees={degrees}
+          totalBars={totalBars}
+          setTotalBars={setTotalBars}
+          setSequence={setSequence}
+          stopHandler={stopHandler}
+          setting={setting}
+          setSetting={setSetting}
+        />
+      </BpmBarDiv>
       <Play
         playing={playing}
         setPlaying={setPlaying}
@@ -79,77 +111,43 @@ export default function ControlPanel({
           <SharpFlat sharpFlat={sharpFlat} setSharpFlat={setSharpFlat} />
         </>
       )}
-      <Bar
-        degrees={degrees}
-        totalBars={totalBars}
-        setTotalBars={setTotalBars}
-        setSequence={setSequence}
-        stopHandler={stopHandler}
-        setting={setting}
-      />
-      <Button onClick={eidtTrack}>音軌</Button>
       <TrackPanel
         trackPanel={trackPanel}
         setTrackPanel={setTrackPanel}
         setting={setting}
         setSetting={setSetting}
+        setSequence={setSequence}
       />
-      {user === null ? null : (
-        <>
-          <Button
-            onClick={async () => {
-              const collectionRef = collection(db, "user", auth.currentUser.uid, "song");
-              if (user.curretSong === null) {
-                const addRef = await addDoc(collectionRef, {
-                  id: "",
-                  setting,
-                  sequence,
-                });
-                await updateDoc(doc(db, "user", auth.currentUser.uid, "song", addRef.id), {
-                  id: addRef.id,
-                });
-                const colRef = collection(db, "user", auth.currentUser.uid, "song");
-                const songSnap = await getDocs(colRef);
-                setUser({
-                  ...user,
-                  song: songSnap.docs.map((data) => ({ ...data.data() })),
-                  curretSong: addRef.id,
-                });
-                return;
-              }
-              await updateDoc(doc(db, "user", auth.currentUser.uid, "song", user.curretSong), {
-                setting,
-                sequence,
-              });
-              const colRef = collection(db, "user", auth.currentUser.uid, "song");
-              const songSnap = await getDocs(colRef);
-              setUser({
-                ...user,
-                song: songSnap.docs.map((data) => ({ ...data.data() })),
-              });
-            }}
-          >
-            儲存
-          </Button>
-          <Button
-            onClick={() => {
-              setLoadPanel(true);
-            }}
-          >
-            讀取
-          </Button>
-        </>
-      )}
-      {loadPanel ? (
-        <>
-          <LoadPanel setSequence={setSequence} setSetting={setSetting} />
-          <Mask
-            onClick={() => {
-              setLoadPanel(false);
-            }}
-          />
-        </>
-      ) : null}
+      <EditDiv>
+        {user === null ? null : (
+          <SaveLoadDiv>
+            <StyledButton
+              onClick={() => {
+                setLoadPanel(true);
+              }}
+            >
+              讀取
+            </StyledButton>
+            <StyledButton onClick={saveProject}>儲存</StyledButton>
+          </SaveLoadDiv>
+        )}
+        {loadPanel ? (
+          <>
+            <LoadPanel
+              setSequence={setSequence}
+              setSetting={setSetting}
+              setLoadPanel={setLoadPanel}
+              setTotalBars={setTotalBars}
+            />
+            <Mask
+              onClick={() => {
+                setLoadPanel(false);
+              }}
+            />
+          </>
+        ) : null}
+        <EditTrackButton onClick={editTrack}>編輯音軌</EditTrackButton>
+      </EditDiv>
     </ContainerDiv>
   );
 }
@@ -165,4 +163,25 @@ const ContainerDiv = styled.div`
   z-index: 2;
   width: 100%;
   height: 150px;
+`;
+
+const BpmBarDiv = styled.div`
+  margin: 0 15px;
+`;
+
+const SaveLoadDiv = styled.div`
+  display: flex;
+`;
+const EditDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 15px;
+`;
+
+const StyledButton = styled(Button)`
+  margin: 1px;
+`;
+const EditTrackButton = styled(StyledButton)`
+  width: 109px;
 `;

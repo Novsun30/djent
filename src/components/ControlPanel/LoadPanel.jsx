@@ -7,44 +7,35 @@ import styled from "styled-components";
 import { auth, db } from "../../config/firebase";
 import UserContext from "../../contexts/UserContext";
 import Button from "../Button";
+import ButtonOrange from "../ButtonOrange";
 import CustomInput from "../CustomInput";
 
-export default function LoadPanel({ setSequence, setSetting }) {
+export default function LoadPanel({
+  setSequence, setSetting, setLoadPanel, setTotalBars,
+}) {
   const { user, setUser } = useContext(UserContext);
   const [selectSong, setSelectSong] = useState(null);
-  const allProject = user.song.map((project) => {
-    console.log();
-    return (
-      <SongDiv key={project.id}>
-        <CustomInput
-          type="radio"
-          name="song"
-          songId={project.id}
-          onClick={() => {
-            setSelectSong(project.id);
-          }}
-        />
-        <SongTitle>{project.setting.song}</SongTitle>
-      </SongDiv>
-    );
-  });
+  const allProject = user.song.map((project) => (
+    <SongDiv key={project.id}>
+      <CustomInput
+        type="radio"
+        name="song"
+        songId={project.id}
+        onClick={() => {
+          setSelectSong(project.id);
+        }}
+      />
+      <SongTitle>{project.setting.song}</SongTitle>
+    </SongDiv>
+  ));
 
   return (
     <LoadPanelDiv>
       <LoadTitle>專案</LoadTitle>
       <ProjectDiv>{allProject}</ProjectDiv>
       {selectSong === null ? null : (
-        <>
-          <Button
-            onClick={() => {
-              const result = user.song.find((project) => project.id === selectSong);
-              setSequence(result.sequence);
-              setSetting(result.setting);
-            }}
-          >
-            讀取
-          </Button>
-          <Button
+        <ButtonDiv>
+          <StyledButton
             onClick={async () => {
               const result = user.song.find((project) => project.id === selectSong);
               await deleteDoc(doc(db, "user", auth.currentUser.uid, "song", result.id));
@@ -57,8 +48,23 @@ export default function LoadPanel({ setSequence, setSetting }) {
             }}
           >
             刪除
-          </Button>
-        </>
+          </StyledButton>
+          <StyledButton
+            onClick={() => {
+              const result = user.song.find((project) => project.id === selectSong);
+              setUser({
+                ...user,
+                currentSong: result.id,
+              });
+              setSequence(result.sequence);
+              setSetting(result.setting);
+              setLoadPanel(false);
+              setTotalBars(result.setting.bar);
+            }}
+          >
+            讀取
+          </StyledButton>
+        </ButtonDiv>
       )}
     </LoadPanelDiv>
   );
@@ -95,4 +101,11 @@ const ProjectDiv = styled.div`
   display: flex;
   flex-direction: column;
   margin: 15px 0;
+`;
+const ButtonDiv = styled.div`
+  display: flex;
+  margin: 20px 0;
+`;
+const StyledButton = styled(ButtonOrange)`
+  margin: 0 10px;
 `;

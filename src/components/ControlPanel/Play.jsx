@@ -90,15 +90,14 @@ export default function Play({
   };
 
   return (
-    <>
-      <Button type="button" onClick={playHandler}>
+    <Container>
+      <StyledButton type="button" onClick={playHandler}>
         {playing === "started" ? (
           <img alt="stop" src="images/icons/stop.svg" />
         ) : (
           <img alt="play" src="images/icons/play.svg" />
         )}
-      </Button>
-
+      </StyledButton>
       {loop ? (
         <SelectedButton
           onClick={(e) => {
@@ -130,13 +129,20 @@ export default function Play({
           <img alt="loop" src="images/icons/loop.svg" />
         </StyledButton>
       )}
-    </>
+    </Container>
   );
 }
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 const StyledButton = styled(Button)`
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 40px;
+  width: 40px;
+  margin: 2px;
 `;
 const SelectedButton = styled(StyledButton)`
   background: var(--button-selected-color);

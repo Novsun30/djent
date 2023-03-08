@@ -36,7 +36,7 @@ export default function NavBar() {
           <Button onClick={() => (authForm ? null : setAuthForm(true))}>登入</Button>
         )}
       </Nav>
-      {authForm ? <StyledAuthForm /> : null}
+      {authForm ? <StyledAuthForm setAuthForm={setAuthForm} /> : null}
       {authForm ? (
         <Mask
           onClick={() => {
@@ -74,6 +74,7 @@ const StyleLink = styled(Link)`
 `;
 const Logo = styled.img`
   transform: scale(0.65);
+  filter: drop-shadow(2px 2px 5px #a000d2);
 `;
 
 const StyledAuthForm = styled(AuthForm)`

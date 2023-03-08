@@ -1,8 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 
-export default function CustomInput({ type, name, onClick }) {
-  return <CustomRadioInput type={type} name={name} onClick={onClick} />;
+export default function CustomInput({
+  type, name, onClick, className, checked,
+}) {
+  return (
+    <CustomRadioInput
+      type={type}
+      name={name}
+      onClick={onClick}
+      className={className}
+      checked={checked}
+    />
+  );
 }
 
 const CustomRadioInput = styled.input`

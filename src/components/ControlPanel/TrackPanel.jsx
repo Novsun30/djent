@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
+import ButtonOrange from "../ButtonOrange";
 import CustomInput from "../CustomInput";
 import Mask from "../Mask";
 
 export default function TrackPanel({
-  trackPanel, setTrackPanel, setting, setSetting,
+  trackPanel,
+  setTrackPanel,
+  setting,
+  setSetting,
+  setSequence,
 }) {
   useEffect(() => {
     const showTrack = document.querySelector("div.show");
@@ -35,14 +40,15 @@ export default function TrackPanel({
       ...setting,
       track: {
         ...setting.track,
-        [track]: { ...setting.track[selectedTrack], add: false, display: false },
+        [track]: { ...setting.track[track], add: false, display: false },
       },
     });
+    setSequence((prevSequence) => prevSequence);
     setSelectedTrack(null);
   };
   const tracks = Object.keys(setting.track).map((track) => (setting.track[track].add ? (
     <TrackDiv key={track}>
-      <TrackTitle>{track.replace("_", " ")}</TrackTitle>
+      <TrackTitle>{track.replaceAll("_", " ")}</TrackTitle>
       <DeleteButton onClick={removeTrack(track)}>X</DeleteButton>
     </TrackDiv>
   ) : null));
@@ -50,9 +56,9 @@ export default function TrackPanel({
     <TrackInputDiv key={track}>
       <CustomInput type="radio" name="track" onClick={selectTrack(track)} />
       {track === selectedTrack ? (
-        <SelectedTrackTitle>{track.replace("_", " ")}</SelectedTrackTitle>
+        <SelectedTrackTitle>{track.replaceAll("_", " ")}</SelectedTrackTitle>
       ) : (
-        <TrackInputTitile>{track.replace("_", " ")}</TrackInputTitile>
+        <TrackInputTitile>{track.replaceAll("_", " ")}</TrackInputTitile>
       )}
     </TrackInputDiv>
   )));
@@ -60,13 +66,13 @@ export default function TrackPanel({
     <>
       <TrackPanelDiv>
         <MyTracksDiv>
-          <ContainerTitle>目前音軌</ContainerTitle>
+          <ContainerTitle>刪除音軌</ContainerTitle>
           {tracks}
         </MyTracksDiv>
         <TrackListDiv>
           <ContainerTitle>新增音軌</ContainerTitle>
           {TrackList}
-          {selectedTrack !== null ? <Button onClick={addTrack}>新增</Button> : null}
+          {selectedTrack !== null ? <AddButton onClick={addTrack}>新增</AddButton> : null}
         </TrackListDiv>
       </TrackPanelDiv>
       <Mask
@@ -93,7 +99,9 @@ const TrackPanelDiv = styled.div`
 `;
 
 const ContainerTitle = styled.p`
+  font-size: 18px;
   color: var(--main-text-color);
+  margin-bottom: 10px;
 `;
 
 const TrackDiv = styled.div`
@@ -114,6 +122,9 @@ const DeleteButton = styled(Button)`
   height: 25px;
   background: #a32a47;
   margin: 4px 0 0 5px;
+`;
+const AddButton = styled(ButtonOrange)`
+  margin-top: 20px;
 `;
 
 const MyTracksDiv = styled.div``;

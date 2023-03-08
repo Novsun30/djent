@@ -4,8 +4,9 @@ import { doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../config/firebase";
 import Button from "./Button";
+import ButtonOrange from "./ButtonOrange";
 
-export default function AuthForm({ className }) {
+export default function AuthForm({ className, setAuthForm }) {
   const [authSwitch, setAuthSwitch] = useState("logIn");
   const [logInData, setLogInData] = useState({
     Email: "",
@@ -51,7 +52,7 @@ export default function AuthForm({ className }) {
       .then((userCredential) => {
         // Signed in
         const { user } = userCredential;
-        console.log(user);
+        setAuthForm(false);
         // ...
       })
       .catch((error) => {
@@ -73,7 +74,6 @@ export default function AuthForm({ className }) {
             email: SignUpData.Email,
             password: SignUpData.Password,
           });
-          console.log("Document written with ID: ", docRef.id);
         } catch (e) {
           console.error("Error adding document: ", e);
         }
@@ -93,7 +93,7 @@ export default function AuthForm({ className }) {
         <Form>
           <FormTitle>登入</FormTitle>
           <FormContent>{logInContent}</FormContent>
-          <Button onClick={logIn}>登入</Button>
+          <StyledButton onClick={logIn}>登入</StyledButton>
           <FormLabel
             onClick={() => {
               setAuthSwitch("signUp");
@@ -107,7 +107,7 @@ export default function AuthForm({ className }) {
         <Form>
           <FormTitle>註冊</FormTitle>
           <FormContent>{signUpContent}</FormContent>
-          <Button onClick={signUp}>註冊</Button>
+          <StyledButton onClick={signUp}>註冊</StyledButton>
           <FormLabel
             onClick={() => {
               setAuthSwitch("logIn");
@@ -129,7 +129,7 @@ const Form = styled.div`
   padding: 10px 0;
   width: 320px;
   background: #111;
-  height: 400px;
+  height: 450px;
   border-radius: 8px;
 `;
 const FormTitle = styled.p`
@@ -145,9 +145,14 @@ const FormLabel = styled.label`
   display: block;
   color: #eee;
   margin-bottom: 3px;
+  cursor: pointer;
 `;
 const SubmitInput = styled.input`
   padding: 5px;
   border-radius: 8px;
   font-size: 16px;
+`;
+
+const StyledButton = styled(ButtonOrange)`
+  margin: 20px 0;
 `;

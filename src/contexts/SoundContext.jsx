@@ -4,7 +4,7 @@ import { Sampler } from "tone";
 
 const SoundContext = createContext({
   Sine: new Tone.Synth().toDestination(),
-  Distortion_Guitar: new Sampler({
+  Dist_Guitar: new Sampler({
     urls: { A4: "sound/distortionGuitar/A4.wav", A5: "sound/distortionGuitar/A5.wav" },
     volume: -15,
   }).toDestination(),
@@ -30,7 +30,10 @@ const SoundContext = createContext({
     hiTom: new Tone.Player("sound/drum/hiTom.wav").toDestination(),
     midTom: new Tone.Player("sound/drum/midTom.wav").toDestination(),
     floorTom: new Tone.Player("sound/drum/floorTom.wav").toDestination(),
-    closedHiHat: new Tone.Player("sound/drum/closedHiHat.wav").toDestination(),
+    closedHiHat: new Tone.Player({
+      url: "sound/drum/closedHiHat.wav",
+      volume: -5,
+    }).toDestination(),
     openHiHat: new Tone.Player("sound/drum/openHiHat.wav").toDestination(),
     ride: new Tone.Player("sound/drum/ride.wav").toDestination(),
     crash: new Tone.Player("sound/drum/crash.wav").toDestination(),

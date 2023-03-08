@@ -15,51 +15,20 @@ export default function BPM({ setting, setSetting, stopHandler }) {
     }
     setSetting({ ...setting, bpm: e.target.value });
   };
-  const addBpm = () => {
-    stopHandler();
-    setSetting((prevSetting) => {
-      let newBpm = Number(prevSetting.bpm) + 1;
-      if (newBpm > 300) {
-        newBpm = 300;
-      }
-      return { ...prevSetting, bpm: newBpm };
-    });
-  };
-  const reduceBpm = () => {
-    stopHandler();
-    setSetting((prevSetting) => {
-      let newBpm = Number(prevSetting.bpm) - 1;
-      if (newBpm < 1) {
-        newBpm = 1;
-      }
-      return { ...prevSetting, bpm: newBpm };
-    });
-  };
+
   return (
     <BpmDiv>
-      <BpmText>BPM</BpmText>
-      <BpmControlDiv>
-        <PlusMinusButton type="button" onClick={reduceBpm}>
-          -
-        </PlusMinusButton>
-        <BpmInput value={setting.bpm} onChange={bpmChangeHandler} />
-        <PlusMinusButton type="button" onClick={addBpm}>
-          +
-        </PlusMinusButton>
-      </BpmControlDiv>
+      <BpmText>BPM：</BpmText>
+      <BpmInput value={setting.bpm} onChange={bpmChangeHandler} />
     </BpmDiv>
   );
 }
 
-const PlusMinusButton = styled(Button)`
-  width: 30px;
-`;
-
 const BpmDiv = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin: 10px;
+  justify-content: center;
+  margin: 5px;
 `;
 
 const BpmInput = styled.input`
@@ -67,19 +36,14 @@ const BpmInput = styled.input`
   background: var(--main-background-color);
   color: var(--main-text-color);
   font-size: 20px;
-  width: 70px;
+  width: 50px;
   padding: 5px;
-  margin: 0 5px;
   text-align: center;
-`;
-
-const BpmControlDiv = styled.div`
-  display: flex;
+  cursor: pointer;
 `;
 
 const BpmText = styled.p`
   color: var(--main-text-color);
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 10px;
 `;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import BottomPanel from "./BottomPanel";
 import NoteButton from "./NoteButton";
@@ -24,6 +24,7 @@ export default function Melody({
   if (setting.track[track].lower) {
     targetDegree = degrees.lower;
   }
+
   const bar = targetDegree.map((degree, i) => {
     if (i === 6) {
       return (

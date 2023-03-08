@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import overBarConverter from "../utils/overBarConverter";
@@ -17,7 +17,6 @@ export default function NoteButton({
   sharpFlat,
 }) {
   const buttonNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
   const stopTransport = () => {
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
@@ -268,7 +267,6 @@ export default function NoteButton({
     });
     return result;
   });
-
   return <Div>{createButton}</Div>;
 }
 

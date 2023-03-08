@@ -11,6 +11,7 @@ import { auth, db } from "./config/firebase";
 import HomePage from "./Pages/HomePage";
 import ComposePage from "./Pages/ComposePage";
 import UserContext from "./contexts/UserContext";
+import Demo from "./Pages/DemoPage";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -28,7 +29,7 @@ export default function App() {
           setUser({
             name,
             song: songSnap.docs.map((data) => ({ ...data.data() })),
-            curretSong: null,
+            currentSong: null,
           });
         };
         getUserData();
@@ -51,6 +52,14 @@ export default function App() {
         element={(
           <UserContext.Provider value={providerValue}>
             <ComposePage />
+          </UserContext.Provider>
+        )}
+      />
+      <Route
+        path="/demo"
+        element={(
+          <UserContext.Provider value={providerValue}>
+            <Demo />
           </UserContext.Provider>
         )}
       />

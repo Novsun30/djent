@@ -7,7 +7,7 @@ export default function NoteValue({ noteValue, setNoteValue, stopHandler }) {
     stopHandler();
     setNoteValue(inputValue);
   };
-  const noteValueArray = ["1n", "2n.", "2n", "4n.", "4n", "8n.", "8n", "16n"];
+  const noteValueArray = ["16n", "8n", "8n.", "4n", "4n.", "2n", "2n.", "1n"];
   const noteValueButtons = noteValueArray.map((inputNoteValue) => {
     let showValue;
     if (inputNoteValue.match(/(n\.)/) !== null) {
@@ -27,15 +27,15 @@ export default function NoteValue({ noteValue, setNoteValue, stopHandler }) {
   });
   return (
     <NoteValueDiv>
-      <NoteValueTitle>Note Value</NoteValueTitle>
+      {/* <NoteValueTitle>Note Value</NoteValueTitle> */}
       <NoteValueButtonDiv>{noteValueButtons}</NoteValueButtonDiv>
     </NoteValueDiv>
   );
 }
 
 const NoteValueButton = styled(Button)`
-  width: 55px;
-  height: 45px;
+  width: 50px;
+  height: 40px;
   margin: 2px;
 `;
 
@@ -45,12 +45,12 @@ const SelectedNoteValue = styled(NoteValueButton)`
 
 const NoteValueButtonDiv = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  width: 216px;
 `;
 
 const NoteValueDiv = styled.div`
   display: flex;
-  flex-direction: column;
-  margin: 0 10px;
 `;
 const NoteValueTitle = styled.p`
   color: var(--main-text-color);

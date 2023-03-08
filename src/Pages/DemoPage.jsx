@@ -1,3 +1,4 @@
+import { doc, getDoc } from "firebase/firestore";
 import React, {
   useContext, useEffect, useMemo, useState,
 } from "react";
@@ -8,9 +9,10 @@ import CustomInput from "../components/CustomInput";
 import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
 import Rhythm from "../components/Rhythm";
+import { db } from "../config/firebase";
 import UserContext from "../contexts/UserContext";
 
-export default function ComposePage() {
+export default function Demo() {
   const { user, setUser } = useContext(UserContext);
   const basicDegrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const lowerDegrees = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1];
@@ -172,6 +174,17 @@ export default function ComposePage() {
       setSharpFlat(false);
     }
   }, [setting.track]);
+  useEffect(() => {
+    async function getDemo() {
+      const docRef = doc(db, "demo", "1");
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.data();
+      setSequence(data.sequence);
+      setSetting(data.setting);
+      setTotalBars(data.setting.bar);
+    }
+    getDemo();
+  }, []);
   function checkTracks() {
     let defaultMessage = <NoTrackMessage>尚無音軌，請先新增音軌</NoTrackMessage>;
     Object.keys(setting.track).forEach((track) => {
@@ -317,12 +330,6 @@ export default function ComposePage() {
             </>
           )}
         </SongTitleDiv>
-        {user === null ? (
-          <WaringDiv>
-            <WarningImg src="images/icons/warning.svg" alt="warning" />
-            <WarningTitle>如需儲存進度，請先登入</WarningTitle>
-          </WaringDiv>
-        ) : null}
 
         <ControlPanel
           sequence={sequence}

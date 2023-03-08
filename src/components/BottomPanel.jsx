@@ -90,7 +90,7 @@ const BottomDiv = styled.div`
   z-index: 1;
   height: 125px;
   width: 100%;
-  background: #333;
+  background: #222;
   justify-content: center;
 `;
 
@@ -104,9 +104,13 @@ const SoundDiv = styled.div`
   align-items: center;
   height: 100%;
   width: 50px;
-  background: #444;
+  background: #1a1a1a;
   outline: 1px solid #d70dff;
   cursor: pointer;
+  border-radius: 5px 5px 0 0;
+  &:hover {
+    background: #222;
+  }
 `;
 
 const SoundText = styled.p`

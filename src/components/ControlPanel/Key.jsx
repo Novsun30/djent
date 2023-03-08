@@ -50,21 +50,16 @@ export default function Key({ setting, setSetting, stopHandler }) {
   };
   return (
     <KeyDiv>
-      <PlusMinusButton type="button" onClick={reduceKey}>
-        -
-      </PlusMinusButton>
+      <StyledImg src="images/icons/minus.svg" onClick={reduceKey} />
       <KeyCenterDiv>
         <KeyText>Key</KeyText>
-        {" "}
         <KeyContent>{keyFormat(setting.key)}</KeyContent>
         <StyledMajorMinorButton type="button" onClick={majorMinorSwitcher}>
           Major / Minor
         </StyledMajorMinorButton>
       </KeyCenterDiv>
 
-      <PlusMinusButton type="button" onClick={addKey}>
-        +
-      </PlusMinusButton>
+      <StyledImg src="images/icons/plus.svg" onClick={addKey} />
     </KeyDiv>
   );
 }
@@ -79,7 +74,6 @@ const KeyCenterDiv = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 10px;
 `;
 
 const KeyText = styled.p`
@@ -94,7 +88,7 @@ const KeyContent = styled.p`
   background: var(--main-background-color);
   color: var(--main-text-color);
   font-size: 20px;
-  width: 100px;
+  width: 110px;
   padding: 5px;
   text-align: center;
 `;
@@ -103,6 +97,7 @@ const StyledMajorMinorButton = styled(Button)`
   font-size: 16px;
 `;
 
-const PlusMinusButton = styled(Button)`
-  width: 30px;
+const StyledImg = styled.img`
+  width: 35px;
+  cursor: pointer;
 `;
