@@ -15,9 +15,9 @@ export default function NoteButton({
   setPlaying,
   noteValue,
   sharpFlat,
+  className,
 }) {
   const buttonNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
   const stopTransport = () => {
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
@@ -224,15 +224,10 @@ export default function NoteButton({
     const result = buttonNumbers.map((number) => {
       if (number % 4 === 0) {
         return (
-          <React.Fragment key={number}>
-            <HrDiv>
-              <CustomHr />
-            </HrDiv>
-            <ButtonDiv className={`button-${bar}-${number}`}>
-              <Button
-                className={`${track}-${degree}-${bar}-${number}-16n`}
-                onClick={addSequence(track, degree, bar, number)}
-              />
+          <div key={number} className={className}>
+            <HrDiv>{number === 0 ? <FirstHr /> : <CustomHr />}</HrDiv>
+            <ButtonDiv>
+              <Button onClick={addSequence(track, degree, bar, number)} />
               <SelectedNote
                 sequence={sequence}
                 info={{
@@ -244,15 +239,12 @@ export default function NoteButton({
                 onClick={removeSequence(track, degree, bar, number)}
               />
             </ButtonDiv>
-          </React.Fragment>
+          </div>
         );
       }
       return (
-        <ButtonDiv key={number} className={`button-${bar}-${number}`}>
-          <Button
-            className={`${track}-${degree}-${bar}-${number}-16n`}
-            onClick={addSequence(track, degree, bar, number)}
-          />
+        <ButtonDiv key={number} className={className}>
+          <Button onClick={addSequence(track, degree, bar, number)} />
           <SelectedNote
             sequence={sequence}
             info={{
@@ -268,7 +260,6 @@ export default function NoteButton({
     });
     return result;
   });
-
   return <Div>{createButton}</Div>;
 }
 
@@ -279,6 +270,9 @@ const Button = styled.button`
   margin: 5px 10px;
   background: var(--note-color);
   border-radius: 5px;
+  @media screen and (max-width: 480px) {
+    margin: 5px 6px;
+  }
 `;
 
 const ButtonDiv = styled.div`
@@ -302,4 +296,8 @@ const CustomHr = styled.div`
   height: 2px;
   width: 100%;
   background: #666;
+`;
+
+const FirstHr = styled(CustomHr)`
+  background: #d90202;
 `;

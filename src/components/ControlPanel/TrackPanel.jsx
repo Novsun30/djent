@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
+import ButtonOrange from "../ButtonOrange";
+import CustomInput from "../CustomInput";
+import Mask from "../Mask";
 
 export default function TrackPanel({
-  trackPanel, setTrackPanel, setting, setSetting,
+  trackPanel,
+  setTrackPanel,
+  setting,
+  setSetting,
+  setSequence,
 }) {
   useEffect(() => {
     const showTrack = document.querySelector("div.show");
@@ -33,47 +40,48 @@ export default function TrackPanel({
       ...setting,
       track: {
         ...setting.track,
-        [track]: { ...setting.track[selectedTrack], add: false, display: false },
+        [track]: { ...setting.track[track], add: false, display: false },
       },
     });
+    setSequence((prevSequence) => prevSequence);
     setSelectedTrack(null);
   };
   const tracks = Object.keys(setting.track).map((track) => (setting.track[track].add ? (
     <TrackDiv key={track}>
-      <TrackTitle>{track}</TrackTitle>
+      <TrackTitle>{track.replaceAll("_", " ")}</TrackTitle>
       <DeleteButton onClick={removeTrack(track)}>X</DeleteButton>
     </TrackDiv>
   ) : null));
   const TrackList = Object.keys(setting.track).map((track) => (setting.track[track].add ? null : (
     <TrackInputDiv key={track}>
-      <CustomRadioInput type="radio" name="track" onClick={selectTrack(track)} />
+      <CustomInput type="radio" name="track" onClick={selectTrack(track)} />
       {track === selectedTrack ? (
-        <SelectedTrackTitle>{track.replace("_", " ")}</SelectedTrackTitle>
+        <SelectedTrackTitle>{track.replaceAll("_", " ")}</SelectedTrackTitle>
       ) : (
-        <TrackInputTitile>{track.replace("_", " ")}</TrackInputTitile>
+        <TrackInputTitile>{track.replaceAll("_", " ")}</TrackInputTitile>
       )}
     </TrackInputDiv>
   )));
   return trackPanel === true ? (
-    <TrackPanelDiv>
-      <CloseButton
+    <>
+      <TrackPanelDiv>
+        <MyTracksDiv>
+          <ContainerTitle>刪除音軌</ContainerTitle>
+          {tracks}
+        </MyTracksDiv>
+        <TrackListDiv>
+          <ContainerTitle>新增音軌</ContainerTitle>
+          {TrackList}
+          {selectedTrack !== null ? <AddButton onClick={addTrack}>新增</AddButton> : null}
+        </TrackListDiv>
+      </TrackPanelDiv>
+      <Mask
         onClick={() => {
           setTrackPanel(false);
           setSelectedTrack(null);
         }}
-      >
-        X
-      </CloseButton>
-      <MyTracksDiv>
-        <ContainerTitle> Tracks</ContainerTitle>
-        {tracks}
-      </MyTracksDiv>
-      <TrackListDiv>
-        <ContainerTitle>Add new Track</ContainerTitle>
-        {TrackList}
-        {selectedTrack !== null ? <Button onClick={addTrack}>Add</Button> : null}
-      </TrackListDiv>
-    </TrackPanelDiv>
+      />
+    </>
   ) : null;
 }
 
@@ -81,16 +89,32 @@ const TrackPanelDiv = styled.div`
   padding: 15px;
   display: flex;
   justify-content: space-around;
-  width: 500px;
+  width: 460px;
   position: fixed;
+  z-index: 4;
   top: 200px;
-  height: 500px;
+  height: 400px;
   background: #111;
   border-radius: 8px;
+  animation: fade-in 0.25s linear;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media screen and (max-width: 480px) {
+    justify-content: space-around;
+    width: 350px;
+  }
 `;
 
 const ContainerTitle = styled.p`
+  font-size: 18px;
   color: var(--main-text-color);
+  margin-bottom: 10px;
 `;
 
 const TrackDiv = styled.div`
@@ -112,11 +136,8 @@ const DeleteButton = styled(Button)`
   background: #a32a47;
   margin: 4px 0 0 5px;
 `;
-const CloseButton = styled(DeleteButton)`
-  margin: 0;
-  position: absolute;
-  top: 5px;
-  right: 5px;
+const AddButton = styled(ButtonOrange)`
+  margin-top: 20px;
 `;
 
 const MyTracksDiv = styled.div``;
@@ -137,34 +158,4 @@ const TrackInputTitile = styled.p`
 `;
 const SelectedTrackTitle = styled(TrackInputTitile)`
   color: var(--note-selected-color);
-`;
-const CustomRadioInput = styled.input`
-  cursor: pointer;
-  position: relative;
-  top: 5px;
-  &:after {
-    display: block;
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    background: #111;
-    border-radius: 100%;
-    border: 2px solid #666;
-  }
-  &:checked:after {
-    border: 2px solid var(--note-selected-color);
-  }
-  &:checked:before {
-    display: block;
-    position: absolute;
-    z-index: 10;
-    top: 6px;
-    left: 6px;
-    content: "";
-    height: 12px;
-    width: 12px;
-    background: var(--note-selected-color);
-    border-radius: 100%;
-  }
 `;

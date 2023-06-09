@@ -2,8 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import { Note, transpose } from "tonal";
 import Button from "../Button";
+import plusImage from "../../assets/images/icons/plus.svg";
+import minusImage from "../../assets/images/icons/minus.svg";
 
-export default function Key({ setting, setSetting, stopHandler }) {
+export default function Key({
+  setting, setSetting, stopHandler, className,
+}) {
   function keyFormat(key) {
     return `${key.split(" ")[0].replace(/[34]/, " ")} ${key.split(" ")[1]}`;
   }
@@ -49,22 +53,22 @@ export default function Key({ setting, setSetting, stopHandler }) {
     });
   };
   return (
-    <KeyDiv>
-      <PlusMinusButton type="button" onClick={reduceKey}>
-        -
-      </PlusMinusButton>
+    <KeyDiv className={className}>
+      <StyledImg src={minusImage} onClick={reduceKey} />
       <KeyCenterDiv>
         <KeyText>Key</KeyText>
-        {" "}
         <KeyContent>{keyFormat(setting.key)}</KeyContent>
+        <Rwd480PlusMinusDiv>
+          <Rwd480Image src={minusImage} onClick={reduceKey} />
+          <Rwd480Image src={plusImage} onClick={addKey} />
+        </Rwd480PlusMinusDiv>
+
         <StyledMajorMinorButton type="button" onClick={majorMinorSwitcher}>
           Major / Minor
         </StyledMajorMinorButton>
       </KeyCenterDiv>
 
-      <PlusMinusButton type="button" onClick={addKey}>
-        +
-      </PlusMinusButton>
+      <StyledImg src={plusImage} onClick={addKey} />
     </KeyDiv>
   );
 }
@@ -73,13 +77,15 @@ const KeyDiv = styled.div`
   display: flex;
   align-items: center;
   margin: 10px;
+  @media screen and (max-width: 1200px) {
+    margin: 0;
+  }
 `;
 
 const KeyCenterDiv = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 10px;
 `;
 
 const KeyText = styled.p`
@@ -87,6 +93,15 @@ const KeyText = styled.p`
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
+  @media screen and (max-width: 1200px) {
+    margin-bottom: 0;
+  }
+  @media screen and (max-width: 750px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const KeyContent = styled.p`
@@ -94,15 +109,59 @@ const KeyContent = styled.p`
   background: var(--main-background-color);
   color: var(--main-text-color);
   font-size: 20px;
-  width: 100px;
+  width: 110px;
   padding: 5px;
   text-align: center;
+  @media screen and (max-width: 1200px) {
+    font-size: 20px;
+  }
+  @media screen and (max-width: 750px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+    width: 70px;
+  }
 `;
 
 const StyledMajorMinorButton = styled(Button)`
   font-size: 16px;
+  @media screen and (max-width: 750px) {
+    font-size: 12px;
+    width: 96px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 96px;
+    margin-top: 3px;
+  }
 `;
 
-const PlusMinusButton = styled(Button)`
-  width: 30px;
+const StyledImg = styled.img`
+  width: 35px;
+  cursor: pointer;
+  @media screen and (max-width: 1200px) {
+    width: 26px;
+  }
+  @media screen and (max-width: 750px) {
+    width: 22px;
+  }
+  @media screen and (max-width: 480px) {
+    display: none;
+  }
+`;
+
+const Rwd480PlusMinusDiv = styled.div`
+  display: none;
+  @media screen and (max-width: 480px) {
+    display: flex;
+  }
+`;
+
+const Rwd480Image = styled(StyledImg)`
+  display: none;
+  @media screen and (max-width: 480px) {
+    display: flex;
+    width: 18px;
+    margin: 0 10px;
+  }
 `;

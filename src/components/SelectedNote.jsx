@@ -148,7 +148,7 @@ export default function SelectedNote({ onClick, info, sequence }) {
 const SixteenthNote = styled.button`
   display: block;
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 30px;
@@ -157,6 +157,9 @@ const SixteenthNote = styled.button`
   margin: 5px 10px;
   background: var(--note-selected-color);
   border-radius: 5px;
+  @media screen and (max-width: 480px) {
+    left: -4px;
+  }
 `;
 const SixteenthSharp = styled(SixteenthNote)`
   background: var(--note-sharp-color);

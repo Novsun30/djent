@@ -8,9 +8,14 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Noto Sans TC', sans-serif;
     font-weight:500;
     word-spacing: 3px;
+    scroll-behavior: smooth;
   }
   body{
     background: var(--main-background-color);
+  }
+  a{
+    text-decoration:none;
+    
   }
   :root {
     --note-color: #fff6ee;
@@ -22,7 +27,7 @@ const GlobalStyle = createGlobalStyle`
     --button-default-color:#666;
     --button-selected-color: #ff7a1f;
     --play-indicator-color: #A32A47;
-    --waring-text-color: #A32A47;
+    --waring-text-color: #cc062a;
     --main-text-color: #EEE;
   }
 `;

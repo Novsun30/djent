@@ -1,65 +1,52 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import Button from "../Button";
 
 export default function BPM({ setting, setSetting, stopHandler }) {
+  const bpmRef = useRef(null);
   const bpmChangeHandler = (e) => {
+    e.target.value = e.target.value.replace(/\D/, "");
+  };
+
+  const setNewBpm = (e) => {
     stopHandler();
     if (e.target.value > 300) {
+      e.target.value = 300;
       setSetting({ ...setting, bpm: 300 });
       return;
     }
     if (e.target.value < 1) {
+      e.target.value = 1;
       setSetting({ ...setting, bpm: 1 });
       return;
     }
     setSetting({ ...setting, bpm: e.target.value });
   };
-  const addBpm = () => {
-    stopHandler();
-    setSetting((prevSetting) => {
-      let newBpm = Number(prevSetting.bpm) + 1;
-      if (newBpm > 300) {
-        newBpm = 300;
-      }
-      return { ...prevSetting, bpm: newBpm };
-    });
-  };
-  const reduceBpm = () => {
-    stopHandler();
-    setSetting((prevSetting) => {
-      let newBpm = Number(prevSetting.bpm) - 1;
-      if (newBpm < 1) {
-        newBpm = 1;
-      }
-      return { ...prevSetting, bpm: newBpm };
-    });
-  };
+
+  useEffect(() => {
+    bpmRef.current.value = setting.bpm;
+  }, [setting.bpm]);
+
   return (
     <BpmDiv>
-      <BpmText>BPM</BpmText>
-      <BpmControlDiv>
-        <PlusMinusButton type="button" onClick={reduceBpm}>
-          -
-        </PlusMinusButton>
-        <BpmInput value={setting.bpm} onChange={bpmChangeHandler} />
-        <PlusMinusButton type="button" onClick={addBpm}>
-          +
-        </PlusMinusButton>
-      </BpmControlDiv>
+      <BpmText>BPM：</BpmText>
+      <BpmInput
+        ref={bpmRef}
+        defaultValue={setting.bpm}
+        onChange={bpmChangeHandler}
+        onBlur={setNewBpm}
+      />
     </BpmDiv>
   );
 }
 
-const PlusMinusButton = styled(Button)`
-  width: 30px;
-`;
-
 const BpmDiv = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin: 10px;
+  justify-content: center;
+  margin: 5px;
+  @media screen and (max-width: 480px) {
+    margin: 3px;
+  }
 `;
 
 const BpmInput = styled.input`
@@ -67,17 +54,26 @@ const BpmInput = styled.input`
   background: var(--main-background-color);
   color: var(--main-text-color);
   font-size: 20px;
-  width: 70px;
+  width: 50px;
   padding: 5px;
-  margin: 0 5px;
   text-align: center;
+  cursor: pointer;
+  @media screen and (max-width: 750px) {
+    font-size: 18px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 15px;
+  }
 `;
-
-const BpmControlDiv = styled.div``;
 
 const BpmText = styled.p`
   color: var(--main-text-color);
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 10px;
+  @media screen and (max-width: 750px) {
+    font-size: 18px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 15px;
+  }
 `;
