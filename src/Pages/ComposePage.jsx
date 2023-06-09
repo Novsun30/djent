@@ -1,6 +1,5 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from "react";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import ControlPanel from "../components/ControlPanel";
@@ -8,9 +7,17 @@ import CustomInput from "../components/CustomInput";
 import Melody from "../components/Melody";
 import NavBar from "../components/NavBar";
 import Rhythm from "../components/Rhythm";
+import { db } from "../config/firebase";
 import UserContext from "../contexts/UserContext";
+import confirmImage from "../assets/images/icons/confirm.svg";
+import cancelImage from "../assets/images/icons/cancel.svg";
+import editImage from "../assets/images/icons/edit.svg";
+import loadingImage from "../assets/images/icons/loading.svg";
+import warningImage from "../assets/images/icons/warning.svg";
 
-export default function ComposePage() {
+import Mask from "../components/Mask";
+
+export default function ComposePage({ demo }) {
   const { user, setUser } = useContext(UserContext);
   const basicDegrees = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const lowerDegrees = [-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1];
@@ -92,6 +99,15 @@ export default function ComposePage() {
   const [editSongTitle, setEditSongTitle] = useState(false);
   const [songTitle, setSongTitle] = useState(setting.song);
 
+  const [showTrackPanel, setShowTrackPanel] = useState(false);
+  const [firstPartNote, SetFirstPartNote] = useState(true);
+  const toggleTrackPanel = () => {
+    if (showTrackPanel) {
+      setShowTrackPanel(false);
+      return;
+    }
+    setShowTrackPanel(true);
+  };
   const stopHandler = () => {
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
@@ -102,6 +118,7 @@ export default function ComposePage() {
       target.style.top = "0px";
     });
   };
+
   const melodyTracks = Object.keys(setting.track).map((track) => {
     if (track === "Drum") {
       return (
@@ -119,6 +136,7 @@ export default function ComposePage() {
           setNoteValue={setNoteValue}
           degrees={defaultDegrees}
           sharpFlat={sharpFlat}
+          firstPartNote={firstPartNote}
         />
       );
     }
@@ -137,6 +155,7 @@ export default function ComposePage() {
         setNoteValue={setNoteValue}
         degrees={defaultDegrees}
         sharpFlat={sharpFlat}
+        firstPartNote={firstPartNote}
       />
     ) : null;
   });
@@ -172,8 +191,25 @@ export default function ComposePage() {
       setSharpFlat(false);
     }
   }, [setting.track]);
+  useEffect(() => {
+    async function getDemo() {
+      const docRef = doc(db, "demo", "1");
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.data();
+      setSequence(data.sequence);
+      setSetting(data.setting);
+      setTotalBars(data.setting.bar);
+    }
+    if (demo) {
+      getDemo();
+    }
+  }, []);
+
   function checkTracks() {
     let defaultMessage = <NoTrackMessage>尚無音軌，請先新增音軌</NoTrackMessage>;
+    if (demo) {
+      defaultMessage = <LoadingImg alt="loading" src={loadingImage} />;
+    }
     Object.keys(setting.track).forEach((track) => {
       if (setting.track[track].add) {
         defaultMessage = null;
@@ -241,6 +277,32 @@ export default function ComposePage() {
     }
     return null;
   });
+  const trackPanel = Object.keys(setting.track).map((track) => {
+    if (setting.track[track].display) {
+      return (
+        <CurrentTrackDiv key={track}>
+          <CustomInput
+            type="radio"
+            name="trackPanel"
+            track={track}
+            checked="checked"
+            onClick={toggleTrack(track)}
+          />
+          <SelectedTrack track={track}>{`${track.replaceAll("_", " ")}`}</SelectedTrack>
+        </CurrentTrackDiv>
+      );
+    }
+
+    if (setting.track[track].add) {
+      return (
+        <CurrentTrackDiv key={track}>
+          <CustomInput type="radio" name="trackPanel" track={track} onClick={toggleTrack(track)} />
+          <AddedTrack track={track}>{`${track.replaceAll("_", " ")}`}</AddedTrack>
+        </CurrentTrackDiv>
+      );
+    }
+    return null;
+  });
 
   function createSequence(inputDegrees) {
     let result = {};
@@ -289,7 +351,7 @@ export default function ComposePage() {
                 }}
               />
               <YesNoImg
-                src="images/icons/confirm.svg"
+                src={confirmImage}
                 alt="confirm"
                 onClick={() => {
                   setSetting({ ...setting, song: songTitle });
@@ -297,7 +359,7 @@ export default function ComposePage() {
                 }}
               />
               <YesNoImg
-                src="images/icons/cancel.svg"
+                src={cancelImage}
                 alt="cancel"
                 onClick={() => {
                   setEditSongTitle(false);
@@ -309,7 +371,7 @@ export default function ComposePage() {
               <SongTitle>{setting.song}</SongTitle>
               <EditImg
                 alt="edit"
-                src="images/icons/edit.svg"
+                src={editImage}
                 onClick={() => {
                   setEditSongTitle(true);
                 }}
@@ -319,7 +381,7 @@ export default function ComposePage() {
         </SongTitleDiv>
         {user === null ? (
           <WaringDiv>
-            <WarningImg src="images/icons/warning.svg" alt="warning" />
+            <WarningImg src={warningImage} alt="warning" />
             <WarningTitle>如需儲存進度，請先登入</WarningTitle>
           </WaringDiv>
         ) : null}
@@ -339,6 +401,9 @@ export default function ComposePage() {
           sharpFlat={sharpFlat}
           setSharpFlat={setSharpFlat}
           stopHandler={stopHandler}
+          toggleTrackPanel={toggleTrackPanel}
+          firstPartNote={firstPartNote}
+          SetFirstPartNote={SetFirstPartNote}
         />
         {melodyTracks}
         {checkTracks()}
@@ -347,6 +412,15 @@ export default function ComposePage() {
             <TrackSelectorTitle>目前音軌</TrackSelectorTitle>
             <TrackSelectorContent>{trackSelector}</TrackSelectorContent>
           </TrackSelectorDiv>
+        ) : null}
+        {showTrackPanel ? (
+          <>
+            <PopupTrackSelectorDiv>
+              <TrackSelectorTitle>目前音軌</TrackSelectorTitle>
+              <TrackSelectorContent>{trackPanel}</TrackSelectorContent>
+            </PopupTrackSelectorDiv>
+            <StyledMask onClick={toggleTrackPanel} />
+          </>
         ) : null}
       </Main>
     </>
@@ -362,6 +436,9 @@ const Main = styled.main`
 const NoTrackMessage = styled.p`
   color: var(--waring-text-color);
   font-size: 25px;
+  @media screen and (max-width: 750px) {
+    font-size: 22px;
+  }
 `;
 
 const CurrentTrackDiv = styled.div`
@@ -388,12 +465,40 @@ const TrackSelectorDiv = styled.div`
   align-items: center;
   background: #111;
   border-radius: 8px;
-  width: 230px;
+  width: 180px;
   padding: 20px 0;
   position: fixed;
-  right: 50px;
-  top: 300px;
+  left: calc(50% + 420px);
+  top: 370px;
+  @media screen and (max-width: 1200px) {
+    display: none;
+  }
 `;
+
+const PopupTrackSelectorDiv = styled(TrackSelectorDiv)`
+  display: none;
+  @media screen and (max-width: 1200px) {
+    display: flex;
+    left: calc(50% - 90px);
+    z-index: 4;
+    animation: fade-in 0.25s linear;
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  }
+`;
+const StyledMask = styled(Mask)`
+  display: none;
+  @media screen and (max-width: 1200px) {
+    display: flex;
+  }
+`;
+
 const TrackSelectorTitle = styled.p`
   color: #eee;
   font-size: 18px;
@@ -410,6 +515,9 @@ const SongTitleDiv = styled.div`
 const SongTitle = styled.p`
   font-size: 32px;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 24px;
+  }
 `;
 const SongTitleInput = styled.input`
   font-size: 32px;
@@ -417,6 +525,10 @@ const SongTitleInput = styled.input`
   text-align: center;
   border-radius: 8px;
   width: 275px;
+  @media screen and (max-width: 750px) {
+    font-size: 24px;
+    width: 250px;
+  }
 `;
 
 const EditImg = styled.img`
@@ -425,20 +537,35 @@ const EditImg = styled.img`
 `;
 
 const YesNoImg = styled.img`
-  transform: scale(1.6);
   cursor: pointer;
-  margin-left: 20px;
+  margin-left: 5px;
+  width: 30px;
+  @media screen and (max-width: 480px) {
+    width: 24px;
+  }
 `;
 const WaringDiv = styled.div`
   display: flex;
   align-items: center;
   margin-top: 10px;
+  @media screen and (max-width: 750px) {
+    margin-top: 0;
+  }
 `;
 const WarningTitle = styled.p`
   font-size: 20px;
   margin-left: 5px;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 16px;
+  }
 `;
 const WarningImg = styled.img`
   width: 35px;
+  @media screen and (max-width: 750px) {
+    width: 24px;
+  }
+`;
+const LoadingImg = styled.img`
+  width: 50px;
 `;

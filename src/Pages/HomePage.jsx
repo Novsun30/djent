@@ -8,6 +8,7 @@ import NavBar from "../components/NavBar";
 import { auth } from "../config/firebase";
 import UserContext from "../contexts/UserContext";
 import ButtonOrange from "../components/ButtonOrange";
+import backGroundImage from "../assets/images/pics/background.jpg";
 
 export default function HomePage() {
   const { user, setUser } = useContext(UserContext);
@@ -16,7 +17,7 @@ export default function HomePage() {
       <BgDiv />
       <NavBar />
       <StyledMain>
-        <BackGroundImg alt="background" src="images/pics/background.jpg" />
+        <BackGroundImg alt="background" src={backGroundImage} />
         <IntroDiv>
           <Title>歡迎來到Djent</Title>
           <SubTitle>創造自己的音樂</SubTitle>
@@ -33,7 +34,6 @@ export default function HomePage() {
             </StyledLink>
           </ButtonDiv>
         </IntroDiv>
-        <LogoImg alt="logo" src="images/icons/logo.svg" />
       </StyledMain>
     </>
   );
@@ -52,34 +52,90 @@ const BgDiv = styled.div`
     rgba(125, 66, 17, 1) 100%
   );
 `;
+
+const BackGroundImg = styled.img`
+  position: absolute;
+  top: -150px;
+  border-radius: 20px;
+  z-index: -1;
+  transform: rotate(90deg);
+  box-shadow: 5px -3px 5px 5px #111;
+  @media screen and (max-width: 1200px) {
+    width: 90%;
+    min-width: 750px;
+    height: 650px;
+    transform: rotate(180deg);
+    top: 100px;
+  }
+  @media screen and (max-width: 750px) {
+    min-width: 480px;
+    height: 480px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 95%;
+    min-width: 360px;
+    height: 400px;
+  }
+`;
+
 const IntroDiv = styled.div`
   margin-top: 100px;
   width: 950px;
+  @media screen and (max-width: 1200px) {
+    width: 700px;
+  }
+  @media screen and (max-width: 750px) {
+    width: 455px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 340px;
+  }
 `;
 
-const LogoImg = styled.img`
-  margin-top: 540px;
-  filter: drop-shadow(2px 2px 5px #a000d2);
-`;
 const Title = styled.p`
   font-size: 55px;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 40px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 24px;
+  }
 `;
 const SubTitle = styled.p`
   font-size: 40px;
   margin-top: 20px;
   text-align: right;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 28px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 const ContentDiv = styled.div`
   margin: 40px 0;
+  @media screen and (max-width: 1200px) {
+    margin-top: 100px;
+  }
+  @media screen and (max-width: 1200px) {
+    margin-top: 50px;
+  }
 `;
 const Content = styled.p`
   font-size: 30px;
   color: #ffe8bd;
+  @media screen and (max-width: 750px) {
+    font-size: 22px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const StyledMain = styled.main`
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -90,18 +146,13 @@ const StyledLink = styled(Link)`
   display: inline-block;
 `;
 
-const BackGroundImg = styled.img`
-  position: absolute;
-  top: -150px;
-  border-radius: 20px;
-  z-index: -1;
-  transform: rotate(90deg);
-  box-shadow: 5px -3px 5px 5px #111;
-`;
 const ButtonDiv = styled.div`
   display: flex;
   margin-top: 200px;
   justify-content: flex-end;
+  @media screen and (max-width: 750px) {
+    margin-top: 100px;
+  }
 `;
 
 const DemoButton = styled(ButtonOrange)`

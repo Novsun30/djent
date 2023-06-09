@@ -1,12 +1,10 @@
-import { async } from "@firebase/util";
 import {
-  collection, deleteDoc, doc, getDoc, getDocs,
+  collection, deleteDoc, doc, getDocs,
 } from "firebase/firestore";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { auth, db } from "../../config/firebase";
 import UserContext from "../../contexts/UserContext";
-import Button from "../Button";
 import ButtonOrange from "../ButtonOrange";
 import CustomInput from "../CustomInput";
 
@@ -77,14 +75,31 @@ const LoadPanelDiv = styled.div`
   align-items: center;
   width: 450px;
   position: fixed;
-  top: 200px;
+  top: 250px;
+  left: calc(50% - 225px);
   background: #111;
   border-radius: 8px;
   z-index: 4;
+  animation: fade-in 0.25s linear;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media screen and (max-width: 480px) {
+    width: 350px;
+    left: calc(50% - 175px);
+  }
 `;
 const LoadTitle = styled.p`
   font-size: 24px;
   color: var(--main-text-color);
+  @media screen and (max-width: 480px) {
+    font-size: 18px;
+  }
 `;
 
 const SongDiv = styled.div`
@@ -96,6 +111,10 @@ const SongTitle = styled.p`
   font-size: 20px;
   color: var(--main-text-color);
   margin-left: 18px;
+  @media screen and (max-width: 480px) {
+    font-size: 16px;
+    padding-top: 5px;
+  }
 `;
 const ProjectDiv = styled.div`
   display: flex;
@@ -108,4 +127,8 @@ const ButtonDiv = styled.div`
 `;
 const StyledButton = styled(ButtonOrange)`
   margin: 0 10px;
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+    width: 80px;
+  }
 `;

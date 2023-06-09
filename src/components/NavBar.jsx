@@ -1,12 +1,14 @@
 import { signOut } from "firebase/auth";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import * as Tone from "tone";
 import { auth } from "../config/firebase";
 import UserContext from "../contexts/UserContext";
 import AuthForm from "./AuthForm";
 import Button from "./Button";
 import Mask from "./Mask";
+import logoImage from "../assets/images/icons/logo.svg";
 
 export default function NavBar() {
   const { user, setUser } = useContext(UserContext);
@@ -14,8 +16,15 @@ export default function NavBar() {
   return (
     <>
       <Nav>
-        <StyleLink to="/">
-          <Logo src="images/icons/logo.svg" alt="logo" />
+        <StyleLink
+          to="/"
+          onClick={() => {
+            Tone.Transport.loop = false;
+            Tone.Transport.stop();
+            Tone.Transport.cancel(0);
+          }}
+        >
+          <Logo src={logoImage} alt="logo" />
           <Title>Djent</Title>
         </StyleLink>
         {user !== null ? (
@@ -59,6 +68,9 @@ const Nav = styled.nav`
   position: sticky;
   z-index: 2;
   top: 0;
+  @media screen and (max-width: 750px) {
+    padding: 0 10px;
+  }
 `;
 
 const Title = styled.p`
@@ -79,7 +91,16 @@ const Logo = styled.img`
 
 const StyledAuthForm = styled(AuthForm)`
   position: fixed;
-  top: 250px;
+  top: 150px;
   left: calc(50% - 160px);
   z-index: 4;
+  animation: fade-in 0.25s linear;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `;

@@ -89,13 +89,26 @@ const TrackPanelDiv = styled.div`
   padding: 15px;
   display: flex;
   justify-content: space-around;
-  width: 500px;
+  width: 460px;
   position: fixed;
   z-index: 4;
   top: 200px;
-  height: 500px;
+  height: 400px;
   background: #111;
   border-radius: 8px;
+  animation: fade-in 0.25s linear;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media screen and (max-width: 480px) {
+    justify-content: space-around;
+    width: 350px;
+  }
 `;
 
 const ContainerTitle = styled.p`

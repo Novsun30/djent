@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 
 export default function Button({
-  children, onClick, className, myref,
+  children, onClick, className, myref, title,
 }) {
   return (
-    <StyledButton onClick={onClick} ref={myref} className={className}>
+    <StyledButton title={title} onClick={onClick} ref={myref} className={className}>
       {children}
     </StyledButton>
   );

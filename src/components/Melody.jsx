@@ -16,6 +16,7 @@ export default function Melody({
   degrees,
   track,
   sharpFlat,
+  firstPartNote,
 }) {
   let targetDegree = degrees.default;
   if (setting.track[track].bass) {
@@ -26,10 +27,10 @@ export default function Melody({
   }
 
   const bar = targetDegree.map((degree, i) => {
-    if (i === 6) {
+    if (i < 6) {
       return (
         <React.Fragment key={`${setting.track}-1-${degree}`}>
-          <NoteButton
+          <StyledNoteButton
             degree={degree}
             totalBars={totalBars}
             setTotalBars={setTotalBars}
@@ -41,25 +42,86 @@ export default function Melody({
             track={track}
             sharpFlat={sharpFlat}
           />
-          <PlayBar totalBars={totalBars} />
+          {firstPartNote ? (
+            <FirstPartNoteButton
+              degree={degree}
+              totalBars={totalBars}
+              setTotalBars={setTotalBars}
+              setSequence={setSequence}
+              sequence={sequence}
+              playing={playing}
+              setPlaying={setPlaying}
+              noteValue={noteValue}
+              track={track}
+              sharpFlat={sharpFlat}
+            />
+          ) : null}
+        </React.Fragment>
+      );
+    }
+    if (i === 6) {
+      return (
+        <React.Fragment key={`${setting.track}-1-${degree}`}>
+          <StyledNoteButton
+            degree={degree}
+            totalBars={totalBars}
+            setTotalBars={setTotalBars}
+            setSequence={setSequence}
+            sequence={sequence}
+            playing={playing}
+            setPlaying={setPlaying}
+            noteValue={noteValue}
+            track={track}
+            sharpFlat={sharpFlat}
+          />
+          {firstPartNote ? (
+            <FirstPartNoteButton
+              degree={degree}
+              totalBars={totalBars}
+              setTotalBars={setTotalBars}
+              setSequence={setSequence}
+              sequence={sequence}
+              playing={playing}
+              setPlaying={setPlaying}
+              noteValue={noteValue}
+              track={track}
+              sharpFlat={sharpFlat}
+            />
+          ) : null}
+          <PlayBar totalBars={totalBars} firstPartNote={firstPartNote} />
         </React.Fragment>
       );
     }
 
     return (
-      <NoteButton
-        key={`${setting.track}-1-${degree}`}
-        degree={degree}
-        totalBars={totalBars}
-        setTotalBars={setTotalBars}
-        setSequence={setSequence}
-        sequence={sequence}
-        playing={playing}
-        setPlaying={setPlaying}
-        noteValue={noteValue}
-        track={track}
-        sharpFlat={sharpFlat}
-      />
+      <React.Fragment key={`${setting.track}-1-${degree}`}>
+        <StyledNoteButton
+          degree={degree}
+          totalBars={totalBars}
+          setTotalBars={setTotalBars}
+          setSequence={setSequence}
+          sequence={sequence}
+          playing={playing}
+          setPlaying={setPlaying}
+          noteValue={noteValue}
+          track={track}
+          sharpFlat={sharpFlat}
+        />
+        {firstPartNote ? null : (
+          <SecondPartNoteButton
+            degree={degree}
+            totalBars={totalBars}
+            setTotalBars={setTotalBars}
+            setSequence={setSequence}
+            sequence={sequence}
+            playing={playing}
+            setPlaying={setPlaying}
+            noteValue={noteValue}
+            track={track}
+            sharpFlat={sharpFlat}
+          />
+        )}
+      </React.Fragment>
     );
   });
 
@@ -67,14 +129,24 @@ export default function Melody({
     return (
       <ShowMelodyDiv>
         <BarsDiv>{bar}</BarsDiv>
-        <BottomPanel setting={setting} degrees={degrees} track={track} />
+        <BottomPanel
+          setting={setting}
+          degrees={degrees}
+          track={track}
+          firstPartNote={firstPartNote}
+        />
       </ShowMelodyDiv>
     );
   }
   return (
     <HideMelodyDiv>
       <BarsDiv>{bar}</BarsDiv>
-      <BottomPanel setting={setting} degrees={degrees} track={track} />
+      <BottomPanel
+        setting={setting}
+        degrees={degrees}
+        track={track}
+        firstPartNote={firstPartNote}
+      />
     </HideMelodyDiv>
   );
 }
@@ -87,3 +159,17 @@ const HideMelodyDiv = styled.div`
   display: none;
 `;
 const ShowMelodyDiv = styled.div``;
+
+const StyledNoteButton = styled(NoteButton)`
+  @media screen and (max-width: 750px) {
+    display: none;
+  }
+`;
+
+const FirstPartNoteButton = styled(NoteButton)`
+  display: none;
+  @media screen and (max-width: 750px) {
+    display: block;
+  }
+`;
+const SecondPartNoteButton = styled(FirstPartNoteButton)``;

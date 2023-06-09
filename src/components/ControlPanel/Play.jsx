@@ -4,6 +4,9 @@ import * as Tone from "tone";
 import { Scale, Note, transpose } from "tonal";
 import Button from "../Button";
 import SoundContext from "../../contexts/SoundContext";
+import playImage from "../../assets/images/icons/play.svg";
+import stopImage from "../../assets/images/icons/stop.svg";
+import loopImage from "../../assets/images/icons/loop.svg";
 
 export default function Play({
   playing, setPlaying, totalBars, sequence, setting, stopHandler,
@@ -18,6 +21,10 @@ export default function Play({
       stopHandler();
       return;
     }
+    window.scroll({
+      top: 0,
+      behavior: "instant",
+    });
     const lastBar = totalBars[totalBars.length - 1];
     const key = Scale.degrees(setting.key);
     const tracks = Object.keys(sequence);
@@ -60,14 +67,47 @@ export default function Play({
     totalBars.forEach((bar) => {
       for (let i = 0; i < 16; i += 1) {
         Tone.Transport.schedule((time) => {
+          if (bar === 1 && i === 0) {
+            window.scroll({
+              top: 0,
+              behavior: "instant",
+            });
+          }
           Tone.Draw.schedule(() => {
             const playBar = document.querySelectorAll("div.play-bar");
             const gap = Math.floor(i / 4) * 20;
             const height = (bar - 1) * 720 + i * 40 + gap;
             playBar.forEach((element) => {
               const target = element;
-              target.style.top = `${height}px`;
+              if (bar === 1 && i === 0) {
+                target.style.top = "0";
+              }
+              // target.style.top = `${height}px`;
+              target.style.transform = `translate(0, ${height}px)`;
+
+              if (setting.bpm > 120 && setting.bpm <= 180) {
+                if (i % 2 === 0) {
+                  target.scrollIntoView({ block: "center" });
+                }
+              } else if (setting.bpm > 180 && setting.bpm <= 220) {
+                if (i % 3 === 0) {
+                  target.scrollIntoView({ block: "center" });
+                }
+              } else if (setting.bpm > 220 && setting.bpm <= 260) {
+                if (i % 4 === 0) {
+                  target.scrollIntoView({ block: "center" });
+                }
+              } else if (setting.bpm > 260) {
+                if (i % 5 === 0) {
+                  target.scrollIntoView({ block: "center" });
+                }
+              } else {
+                target.scrollIntoView({ block: "center" });
+              }
             });
+
+            // playBar.scrollIntoView({ block: "center" });
+            // window.scroll(0, height - 250);
           }, time - 0.1);
         }, `${bar - 1}:0:${i}`);
       }
@@ -88,45 +128,32 @@ export default function Play({
     await Tone.start();
     setPlaying(Tone.Transport.state);
   };
-
+  const loopSwitch = (e) => {
+    stopHandler();
+    if (loop) {
+      setLoop(false);
+      e.target.style.background = "var(--button-default-color)";
+      return;
+    }
+    setLoop(true);
+    e.target.style.background = "var(--button-selected-color)";
+  };
   return (
     <Container>
       <StyledButton type="button" onClick={playHandler}>
         {playing === "started" ? (
-          <img alt="stop" src="images/icons/stop.svg" />
+          <StyledImage alt="stop" src={stopImage} />
         ) : (
-          <img alt="play" src="images/icons/play.svg" />
+          <StyledImage alt="play" src={playImage} />
         )}
       </StyledButton>
       {loop ? (
-        <SelectedButton
-          onClick={(e) => {
-            stopHandler();
-            if (loop) {
-              setLoop(false);
-              e.target.style.background = "var(--button-default-color)";
-              return;
-            }
-            setLoop(true);
-            e.target.style.background = "var(--button-selected-color)";
-          }}
-        >
-          <SelectedImg alt="loop" src="images/icons/loop.svg" />
+        <SelectedButton onClick={loopSwitch}>
+          <SelectedImg alt="loop" src={loopImage} />
         </SelectedButton>
       ) : (
-        <StyledButton
-          onClick={(e) => {
-            stopHandler();
-            if (loop) {
-              setLoop(false);
-              e.target.style.background = "var(--button-default-color)";
-              return;
-            }
-            setLoop(true);
-            e.target.style.background = "var(--button-selected-color)";
-          }}
-        >
-          <img alt="loop" src="images/icons/loop.svg" />
+        <StyledButton onClick={loopSwitch}>
+          <StyledImage alt="loop" src={loopImage} />
         </StyledButton>
       )}
     </Container>
@@ -143,6 +170,22 @@ const StyledButton = styled(Button)`
   height: 40px;
   width: 40px;
   margin: 2px;
+  @media screen and (max-width: 750px) {
+    width: 35px;
+    height: 35px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+  }
+`;
+const StyledImage = styled.img`
+  @media screen and (max-width: 750px) {
+    width: 22px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 18px;
+  }
 `;
 const SelectedButton = styled(StyledButton)`
   background: var(--button-selected-color);
@@ -150,4 +193,7 @@ const SelectedButton = styled(StyledButton)`
 
 const SelectedImg = styled.img`
   background: var(--button-selected-color);
+  @media screen and (max-width: 480px) {
+    width: 18px;
+  }
 `;

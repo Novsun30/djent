@@ -1,12 +1,9 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   collection, doc, getDoc, getDocs,
 } from "firebase/firestore";
-import styled from "styled-components";
 import { auth, db } from "./config/firebase";
 import HomePage from "./Pages/HomePage";
 import ComposePage from "./Pages/ComposePage";
@@ -51,7 +48,7 @@ export default function App() {
         path="/compose"
         element={(
           <UserContext.Provider value={providerValue}>
-            <ComposePage />
+            <ComposePage demo={false} />
           </UserContext.Provider>
         )}
       />

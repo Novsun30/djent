@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+  useState, useEffect, useContext, useRef,
+} from "react";
 import styled from "styled-components";
 import * as Tone from "tone";
 import {
@@ -17,6 +19,10 @@ import { auth, db } from "../config/firebase";
 import UserContext from "../contexts/UserContext";
 import LoadPanel from "./ControlPanel/LoadPanel";
 import Mask from "./Mask";
+import leftArrow from "../assets/images/icons/leftArrow.svg";
+import rightArrow from "../assets/images/icons/rightArrow.svg";
+import selectedLeftArrow from "../assets/images/icons/selectedLeftArrow.svg";
+import selectedRightArrow from "../assets/images/icons/selectedRightArrow.svg";
 
 export default function ControlPanel({
   setting,
@@ -33,10 +39,14 @@ export default function ControlPanel({
   sharpFlat,
   setSharpFlat,
   stopHandler,
+  toggleTrackPanel,
+  firstPartNote,
+  SetFirstPartNote,
 }) {
   const { user, setUser } = useContext(UserContext);
   const [trackPanel, setTrackPanel] = useState(false);
   const [loadPanel, setLoadPanel] = useState(false);
+
   useEffect(() => {
     if (playing === "stopped") {
       const playBar = document.querySelectorAll("div.play-bar");
@@ -49,6 +59,13 @@ export default function ControlPanel({
 
   const editTrack = () => {
     setTrackPanel(true);
+  };
+  const toggleNotePart = () => {
+    if (firstPartNote) {
+      SetFirstPartNote(false);
+      return;
+    }
+    SetFirstPartNote(true);
   };
   const saveProject = async () => {
     if (user.curretSong === null) {
@@ -107,7 +124,11 @@ export default function ControlPanel({
       />
       {setting.track.Drum.display ? null : (
         <>
-          <NoteValue noteValue={noteValue} setNoteValue={setNoteValue} stopHandler={stopHandler} />
+          <StyledNoteValue
+            noteValue={noteValue}
+            setNoteValue={setNoteValue}
+            stopHandler={stopHandler}
+          />
           <SharpFlat sharpFlat={sharpFlat} setSharpFlat={setSharpFlat} />
         </>
       )}
@@ -121,14 +142,14 @@ export default function ControlPanel({
       <EditDiv>
         {user === null ? null : (
           <SaveLoadDiv>
-            <StyledButton
+            <SaveLoadButton
               onClick={() => {
                 setLoadPanel(true);
               }}
             >
               讀取
-            </StyledButton>
-            <StyledButton onClick={saveProject}>儲存</StyledButton>
+            </SaveLoadButton>
+            <SaveLoadButton onClick={saveProject}>儲存</SaveLoadButton>
           </SaveLoadDiv>
         )}
         {loadPanel ? (
@@ -139,7 +160,7 @@ export default function ControlPanel({
               setLoadPanel={setLoadPanel}
               setTotalBars={setTotalBars}
             />
-            <Mask
+            <StyledMask
               onClick={() => {
                 setLoadPanel(false);
               }}
@@ -147,7 +168,24 @@ export default function ControlPanel({
           </>
         ) : null}
         <EditTrackButton onClick={editTrack}>編輯音軌</EditTrackButton>
+        <SelectTrackButton onClick={toggleTrackPanel}>目前音軌</SelectTrackButton>
       </EditDiv>
+      <NoteTabDiv>
+        <div>
+          {firstPartNote ? (
+            <SelectedLeftArrow alt="selectedLeftArrow" src={selectedLeftArrow} />
+          ) : (
+            <LeftArrow alt="leftArrow" src={leftArrow} onClick={toggleNotePart} />
+          )}
+        </div>
+        <div>
+          {firstPartNote ? (
+            <RightArrow alt="rightArrow" src={rightArrow} onClick={toggleNotePart} />
+          ) : (
+            <SelectedRightArrow alt="selectedRightArrow" src={selectedRightArrow} />
+          )}
+        </div>
+      </NoteTabDiv>
     </ContainerDiv>
   );
 }
@@ -157,16 +195,25 @@ const ContainerDiv = styled.div`
   justify-content: center;
   align-items: center;
   position: sticky;
-  top: 50px;
-  padding-top: 20px;
+  top: 49px;
   background: var(--main-background-color);
   z-index: 2;
   width: 100%;
   height: 150px;
+  @media screen and (max-width: 750px) {
+    height: 150px;
+    flex-wrap: wrap;
+  }
 `;
 
 const BpmBarDiv = styled.div`
   margin: 0 15px;
+  @media screen and (max-width: 750px) {
+    margin: 0 7px;
+  }
+  @media screen and (max-width: 480px) {
+    margin: 0 0 0 3px;
+  }
 `;
 
 const SaveLoadDiv = styled.div`
@@ -177,11 +224,93 @@ const EditDiv = styled.div`
   flex-direction: column;
   align-items: center;
   margin-left: 15px;
+  @media screen and (max-width: 1200px) {
+    margin-left: 5px;
+  }
+  @media screen and (max-width: 480px) {
+    margin-left: 2px;
+  }
 `;
 
-const StyledButton = styled(Button)`
+const SaveLoadButton = styled(Button)`
   margin: 1px;
+  font-size: 20px;
+  @media screen and (max-width: 1200px) {
+    font-size: 14px;
+  }
+  @media screen and (max-width: 750px) {
+    height: 30px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 38px;
+    margin: 1px 0;
+    height: 30px;
+    font-size: 12px;
+  }
 `;
-const EditTrackButton = styled(StyledButton)`
+const EditTrackButton = styled(Button)`
   width: 109px;
+  margin: 1px 0;
+  @media screen and (max-width: 1200px) {
+    width: 88px;
+    font-size: 18px;
+  }
+  @media screen and (max-width: 750px) {
+    height: 30px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 62px;
+    font-size: 12px;
+  }
+`;
+
+const SelectTrackButton = styled(EditTrackButton)`
+  display: none;
+  @media screen and (max-width: 1200px) {
+    display: flex;
+  }
+  @media screen and (max-width: 750px) {
+    height: 30px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 62px;
+    font-size: 12px;
+  }
+`;
+const StyledNoteValue = styled(NoteValue)``;
+
+const NoteTabDiv = styled.div`
+  width: 450px;
+  height: 28px;
+  display: none;
+  margin-bottom: 5px;
+  @media screen and (max-width: 750px) {
+    display: flex;
+    top: 191px;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 360px;
+  }
+`;
+
+const LeftArrow = styled.img`
+  width: 40px;
+  cursor: pointer;
+  @media screen and (max-width: 480px) {
+    width: 24px;
+  }
+`;
+const RightArrow = styled(LeftArrow)``;
+const SelectedLeftArrow = styled.img`
+  width: 40px;
+  @media screen and (max-width: 480px) {
+    width: 24px;
+  }
+`;
+const SelectedRightArrow = styled(SelectedLeftArrow)``;
+
+const StyledMask = styled(Mask)`
+  left: 0;
 `;

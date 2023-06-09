@@ -2,7 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import Button from "../Button";
 
-export default function NoteValue({ noteValue, setNoteValue, stopHandler }) {
+export default function NoteValue({
+  noteValue, setNoteValue, stopHandler, className,
+}) {
   const noteValueSelector = (inputValue) => () => {
     stopHandler();
     setNoteValue(inputValue);
@@ -16,18 +18,27 @@ export default function NoteValue({ noteValue, setNoteValue, stopHandler }) {
       showValue = (1 / Number(inputNoteValue.replace("n", ""))) * 16;
     }
     return noteValue === inputNoteValue ? (
-      <SelectedNoteValue key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+      <SelectedNoteValue
+        title="拍子長度"
+        key={`${inputNoteValue}`}
+        onClick={noteValueSelector(inputNoteValue)}
+        className={className}
+      >
         {`x${showValue}`}
       </SelectedNoteValue>
     ) : (
-      <NoteValueButton key={`${inputNoteValue}`} onClick={noteValueSelector(inputNoteValue)}>
+      <NoteValueButton
+        title="拍子長度"
+        key={`${inputNoteValue}`}
+        onClick={noteValueSelector(inputNoteValue)}
+        className={className}
+      >
         {`x${showValue}`}
       </NoteValueButton>
     );
   });
   return (
-    <NoteValueDiv>
-      {/* <NoteValueTitle>Note Value</NoteValueTitle> */}
+    <NoteValueDiv title="拍子長度" className={className}>
       <NoteValueButtonDiv>{noteValueButtons}</NoteValueButtonDiv>
     </NoteValueDiv>
   );
@@ -37,6 +48,22 @@ const NoteValueButton = styled(Button)`
   width: 50px;
   height: 40px;
   margin: 2px;
+  @media screen and (max-width: 750px) {
+    width: 40px;
+    height: 32px;
+    margin: 1px;
+  }
+  @media screen and (max-width: 750px) {
+    width: 40px;
+    height: 32px;
+    margin: 1px;
+    font-size: 18px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+    width: 34px;
+    height: 28px;
+  }
 `;
 
 const SelectedNoteValue = styled(NoteValueButton)`
@@ -47,15 +74,23 @@ const NoteValueButtonDiv = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 216px;
+  @media screen and (max-width: 750px) {
+    width: 340px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 300px;
+  }
 `;
 
 const NoteValueDiv = styled.div`
   display: flex;
-`;
-const NoteValueTitle = styled.p`
-  color: var(--main-text-color);
-  font-size: 20px;
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 10px;
+  @media screen and (max-width: 750px) {
+    position: absolute;
+    display: flex;
+    top: 108px;
+    left: calc(50% - 166px);
+  }
+  @media screen and (max-width: 480px) {
+    left: calc(50% - 143px);
+  }
 `;

@@ -33,10 +33,10 @@ export default function SharpFlat({ sharpFlat, setSharpFlat }) {
   };
   return (
     <Container>
-      <ShaprButton myref={sharpRef} onClick={setSharp}>
+      <SharpButton title="升記號" myref={sharpRef} onClick={setSharp}>
         #
-      </ShaprButton>
-      <FlatButton myref={flatRef} onClick={setFlat}>
+      </SharpButton>
+      <FlatButton title="降記號" myref={flatRef} onClick={setFlat}>
         b
       </FlatButton>
     </Container>
@@ -54,8 +54,16 @@ const FlatButton = styled(Button)`
   height: 40px;
   color: var(--note-flat-color);
   margin: 2px;
+  @media screen and (max-width: 750px) {
+    width: 35px;
+    height: 35px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+  }
 `;
-const ShaprButton = styled(Button)`
+const SharpButton = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,4 +71,12 @@ const ShaprButton = styled(Button)`
   height: 40px;
   color: var(--note-sharp-color);
   margin: 2px;
+  @media screen and (max-width: 750px) {
+    width: 35px;
+    height: 35px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+  }
 `;

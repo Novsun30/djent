@@ -8,6 +8,7 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Noto Sans TC', sans-serif;
     font-weight:500;
     word-spacing: 3px;
+    scroll-behavior: smooth;
   }
   body{
     background: var(--main-background-color);

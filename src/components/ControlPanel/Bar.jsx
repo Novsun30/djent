@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "../Button";
+import plusImage from "../../assets/images/icons/plus.svg";
+import minusImage from "../../assets/images/icons/minus.svg";
 
 export default function Bar({
   degrees,
@@ -60,16 +61,18 @@ export default function Bar({
       prevTotalBars.pop();
       return [...prevTotalBars];
     });
-    setSetting({ ...setting, bar: totalBars.pop() });
+    const newTotalBars = [...totalBars];
+    newTotalBars.pop();
+    setSetting({ ...setting, bar: newTotalBars });
   };
   return (
     <BarDiv>
-      <StyledImg src="images/icons/minus.svg" onClick={reduceBar} />
+      <StyledImg src={minusImage} onClick={reduceBar} />
       <BarInfoDiv>
         <BarTitle>總小節數</BarTitle>
         <BarContent>{totalBars.length}</BarContent>
       </BarInfoDiv>
-      <StyledImg src="images/icons/plus.svg" onClick={addBar} />
+      <StyledImg src={plusImage} onClick={addBar} />
     </BarDiv>
   );
 }
@@ -81,11 +84,23 @@ const BarDiv = styled.div`
 const BarTitle = styled.p`
   font-size: 18px;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 const BarContent = styled.p`
   font-weight: 700;
   font-size: 18px;
   color: #eee;
+  @media screen and (max-width: 750px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const BarInfoDiv = styled.div`
@@ -93,9 +108,21 @@ const BarInfoDiv = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 0 10px;
+  @media screen and (max-width: 480px) {
+    margin: 0 3px;
+  }
 `;
 
 const StyledImg = styled.img`
   width: 35px;
   cursor: pointer;
+  @media screen and (max-width: 1200px) {
+    width: 26px;
+  }
+  @media screen and (max-width: 750px) {
+    width: 22px;
+  }
+  @media screen and (max-width: 480px) {
+    width: 18px;
+  }
 `;

@@ -157,6 +157,9 @@ const SixteenthNote = styled.button`
   margin: 5px 10px;
   background: var(--note-selected-color);
   border-radius: 5px;
+  @media screen and (max-width: 480px) {
+    left: -4px;
+  }
 `;
 const SixteenthSharp = styled(SixteenthNote)`
   background: var(--note-sharp-color);

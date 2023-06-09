@@ -20,6 +20,10 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.(png|jpe?g|gif|svg|wav|mp3)$/i,
+        type: "asset/resource",
+      },
     ],
   },
   devServer: {
